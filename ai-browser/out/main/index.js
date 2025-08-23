@@ -1,4 +1,4 @@
-import { ipcMain, app, BrowserWindow } from "electron";
+import { BrowserWindow, ipcMain, app } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import require$$0 from "fs";
@@ -14698,6 +14698,47 @@ function requireMain() {
 }
 var mainExports = requireMain();
 const dotenv = /* @__PURE__ */ getDefaultExportFromCjs(mainExports);
+let browserWindow = null;
+function createBrowserWindow() {
+  if (browserWindow) return browserWindow;
+  browserWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      webSecurity: true
+    }
+  });
+  return browserWindow;
+}
+async function navigateTo(url) {
+  if (!browserWindow) {
+    browserWindow = createBrowserWindow();
+  }
+  await browserWindow.loadURL(url);
+  return url;
+}
+async function getPageContent() {
+  if (!browserWindow) return "";
+  const content = await browserWindow.webContents.executeJavaScript(`
+    document.body ? document.body.innerText.substring(0, 2000) : ''
+  `);
+  return content;
+}
+async function getPageTitle() {
+  if (!browserWindow) return "";
+  return browserWindow.webContents.getTitle();
+}
+async function getPageURL() {
+  if (!browserWindow) return "";
+  return browserWindow.webContents.getURL();
+}
+async function takeScreenshot() {
+  if (!browserWindow) return null;
+  return await browserWindow.webContents.capturePage();
+}
 dotenv.config();
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 function createWindow() {
@@ -14719,23 +14760,88 @@ function createWindow() {
     win.loadFile(path.join(currentDir, "../renderer/index.html"));
   }
 }
-ipcMain.handle("ai-query", async (event, { query, pageContent }) => {
+ipcMain.handle("ai-query", async (event, { query, pageContent, currentUrl }) => {
   try {
+    const systemPrompt = `You are an AI browser assistant that can help users browse the web and analyze content.
+    
+    You can perform these actions by returning JSON commands:
+    1. Navigate to a website: {"action": "navigate", "url": "https://example.com"}
+    2. Search Google: {"action": "search", "query": "search terms"}
+    3. Summarize current page: {"action": "summarize", "content": "summary text"}
+    4. Answer questions: {"action": "answer", "content": "answer text"}
+    5. Extract information: {"action": "extract", "content": "extracted info"}
+    
+    Current page URL: ${currentUrl}
+    Current page content (first 1000 chars): ${pageContent.substring(0, 1e3)}
+    
+    User request: ${query}
+    
+    Analyze the user's request. If they want to:
+    - Visit a specific website or news site, return a navigate action
+    - Search for something, return a search action
+    - Know about the current page, analyze the content and return summarize/extract/answer
+    - Just chat, return an answer action
+    
+    IMPORTANT: Always return a valid JSON object with "action" and appropriate fields.
+    Examples:
+    - "Go to CNN" -> {"action": "navigate", "url": "https://www.cnn.com"}
+    - "Search for AI news" -> {"action": "search", "query": "AI news"}
+    - "What's on this page?" -> {"action": "summarize", "content": "This page contains..."}
+    - "Hello" -> {"action": "answer", "content": "Hello! How can I help you browse the web today?"}`;
     const result = await streamText({
       model: google("gemini-2.5-flash"),
-      prompt: `User query: ${query}
-
-Page content: ${pageContent.substring(0, 1e3)}`,
+      system: systemPrompt,
+      prompt: query,
       maxTokens: 500
     });
     const chunks = [];
     for await (const chunk of result.textStream) {
       chunks.push(chunk);
     }
-    return chunks.join("");
+    const response = chunks.join("");
+    console.log("AI Response:", response);
+    try {
+      const parsed = JSON.parse(response);
+      return JSON.stringify(parsed);
+    } catch {
+      return JSON.stringify({ action: "answer", content: response });
+    }
   } catch (error) {
     console.error("AI Error:", error);
-    return "AI processing error, please try again!";
+    return JSON.stringify({ action: "answer", content: "Sorry, I encountered an error. Please try again." });
+  }
+});
+ipcMain.handle("navigate-browser", async (event, url) => {
+  try {
+    await navigateTo(url);
+    const content = await getPageContent();
+    const title = await getPageTitle();
+    const currentUrl = await getPageURL();
+    const screenshot = await takeScreenshot();
+    return {
+      success: true,
+      url: currentUrl,
+      title,
+      content,
+      screenshot: screenshot ? screenshot.toDataURL() : null
+    };
+  } catch (error) {
+    console.error("Navigation error:", error);
+    return { success: false, error: error.message };
+  }
+});
+ipcMain.handle("get-browser-state", async () => {
+  try {
+    const content = await getPageContent();
+    const title = await getPageTitle();
+    const url = await getPageURL();
+    return {
+      url,
+      title,
+      content
+    };
+  } catch (error) {
+    return { url: "", title: "", content: "" };
   }
 });
 app.whenReady().then(createWindow);

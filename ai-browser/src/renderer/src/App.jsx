@@ -5,8 +5,13 @@ function App() {
   const [url, setUrl] = useState('https://www.cnn.com');
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState('');
-  const [pageContent, setPageContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const [browserState, setBrowserState] = useState({
+    url: '',
+    title: '',
+    content: '',
+    screenshot: null
+  });
 
   // Popular US news sites
   const newsSites = [
@@ -22,28 +27,86 @@ function App() {
     { name: 'USA Today', url: 'https://www.usatoday.com' }
   ];
 
-  // Get webpage content
+  // Load initial page
   useEffect(() => {
-    const webview = document.getElementById('browser');
-    if (webview) {
-      webview.addEventListener('dom-ready', () => {
-        webview.executeJavaScript('document.body.innerText').then(text => {
-          setPageContent(text);
-        }).catch(err => console.error('Failed to get page content:', err));
-      });
-    }
+    loadSite(url);
   }, []);
 
-  // Send AI query
+  // Navigate to a website
+  const loadSite = async (siteUrl) => {
+    setUrl(siteUrl);
+    setLoading(true);
+    try {
+      const result = await window.api.navigateBrowser(siteUrl);
+      if (result.success) {
+        setBrowserState({
+          url: result.url,
+          title: result.title,
+          content: result.content,
+          screenshot: result.screenshot
+        });
+        setResponse(`✅ Loaded: ${result.title}`);
+      } else {
+        setResponse(`❌ Failed to load: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+      setResponse(`❌ Error loading page`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Send AI query and handle agent commands
   const sendQuery = async () => {
     if (!query.trim()) return;
     
     setLoading(true);
+    setResponse('🔄 Processing...');
+    
     try {
-      const result = await window.api.sendQuery(query, pageContent);
-      setResponse(result);
+      const result = await window.api.sendQuery(query, browserState.content, browserState.url);
+      
+      // Parse AI response
+      let aiResponse;
+      try {
+        aiResponse = JSON.parse(result);
+      } catch {
+        aiResponse = { action: 'answer', content: result };
+      }
+      
+      // Handle different agent actions
+      switch (aiResponse.action) {
+        case 'navigate':
+          if (aiResponse.url) {
+            setResponse(`📍 Navigating to ${aiResponse.url}...`);
+            await loadSite(aiResponse.url);
+          }
+          break;
+          
+        case 'search':
+          if (aiResponse.query) {
+            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(aiResponse.query)}`;
+            setResponse(`🔍 Searching for: ${aiResponse.query}...`);
+            await loadSite(searchUrl);
+          }
+          break;
+          
+        case 'summarize':
+        case 'extract':
+        case 'answer':
+          setResponse(aiResponse.content || 'No response available');
+          break;
+          
+        default:
+          setResponse(aiResponse.content || JSON.stringify(aiResponse));
+      }
+      
+      // Clear query after successful execution
+      setQuery('');
+      
     } catch (error) {
-      setResponse('Error: Failed to get AI response');
+      setResponse('❌ Error: Failed to process command');
       console.error('Query error:', error);
     } finally {
       setLoading(false);
@@ -51,15 +114,15 @@ function App() {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !loading) {
       sendQuery();
     }
   };
 
-  const loadSite = (siteUrl) => {
-    setUrl(siteUrl);
-    const webview = document.getElementById('browser');
-    if (webview) webview.src = siteUrl;
+  const handleUrlKeyPress = (e) => {
+    if (e.key === 'Enter' && !loading) {
+      loadSite(url);
+    }
   };
 
   return (
@@ -72,6 +135,7 @@ function App() {
               className="quick-link-btn"
               onClick={() => loadSite(site.url)}
               title={site.url}
+              disabled={loading}
             >
               {site.name}
             </button>
@@ -82,39 +146,66 @@ function App() {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="输入网页 URL"
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                const webview = document.getElementById('browser');
-                if (webview) webview.src = e.target.value;
-              }
-            }}
+            placeholder="Enter URL..."
+            onKeyPress={handleUrlKeyPress}
+            disabled={loading}
           />
-          <button onClick={() => {
-            const webview = document.getElementById('browser');
-            if (webview) webview.src = url;
-          }}>Go</button>
+          <button onClick={() => loadSite(url)} disabled={loading}>
+            {loading ? '⏳' : '▶️'} Go
+          </button>
         </div>
-        <webview id="browser" src={url} />
+        <div className="browser-view">
+          {browserState.screenshot ? (
+            <img 
+              src={browserState.screenshot} 
+              alt="Browser view"
+              style={{ width: '100%', height: 'auto' }}
+            />
+          ) : (
+            <div className="browser-placeholder">
+              <h2>{browserState.title || 'No page loaded'}</h2>
+              <p>{browserState.url || 'Enter a URL above or use AI commands'}</p>
+              {browserState.content && (
+                <div className="page-preview">
+                  {browserState.content.substring(0, 500)}...
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       <div className="ai-panel">
-        <h3>AI Assistant</h3>
+        <h3>🤖 AI Browser Agent</h3>
+        <div className="ai-tips">
+          <p>Try these commands:</p>
+          <ul>
+            <li>📍 "Go to CNN" - Navigate to websites</li>
+            <li>🔍 "Search for AI news" - Search Google</li>
+            <li>📝 "Summarize this page" - Get page summary</li>
+            <li>❓ "What's on this page?" - Analyze content</li>
+          </ul>
+        </div>
         <div className="query-input">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="问 AI 问题..."
+            placeholder="Type a command or question..."
             onKeyPress={handleKeyPress}
             disabled={loading}
           />
           <button onClick={sendQuery} disabled={loading || !query.trim()}>
-            {loading ? '处理中...' : '发送'}
+            {loading ? '🔄 Processing...' : '▶️ Send'}
           </button>
         </div>
         <div className="response">
-          {response || 'AI 响应会显示在这里'}
+          {response || '💬 Ready to help you browse the web!'}
         </div>
+        {browserState.url && (
+          <div className="browser-info">
+            <small>📄 Current: {browserState.title || browserState.url}</small>
+          </div>
+        )}
       </div>
     </div>
   );
