@@ -14708,8 +14708,12 @@ function createBrowserWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: true
+      webSecurity: false,
+      // Allow cross-origin requests
+      allowRunningInsecureContent: true
     }
+  });
+  browserWindow.on("ready-to-show", () => {
   });
   return browserWindow;
 }
@@ -14717,8 +14721,14 @@ async function navigateTo(url) {
   if (!browserWindow) {
     browserWindow = createBrowserWindow();
   }
-  await browserWindow.loadURL(url);
-  return url;
+  try {
+    await browserWindow.loadURL(url);
+    await new Promise((resolve2) => setTimeout(resolve2, 2e3));
+    return url;
+  } catch (error) {
+    console.error("Failed to navigate:", error);
+    throw error;
+  }
 }
 async function getPageContent() {
   if (!browserWindow) return "";
@@ -14737,7 +14747,13 @@ async function getPageURL() {
 }
 async function takeScreenshot() {
   if (!browserWindow) return null;
-  return await browserWindow.webContents.capturePage();
+  try {
+    const image = await browserWindow.webContents.capturePage();
+    return image.toDataURL();
+  } catch (error) {
+    console.error("Failed to take screenshot:", error);
+    return null;
+  }
 }
 dotenv.config();
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
@@ -14749,7 +14765,7 @@ function createWindow() {
       preload: path.join(currentDir, "../preload/index.js"),
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: true,
+      webSecurity: false,
       webviewTag: true
     }
   });
@@ -14823,7 +14839,8 @@ ipcMain.handle("navigate-browser", async (event, url) => {
       url: currentUrl,
       title,
       content,
-      screenshot: screenshot ? screenshot.toDataURL() : null
+      screenshot
+      // Already converted to dataURL in takeScreenshot()
     };
   } catch (error) {
     console.error("Navigation error:", error);

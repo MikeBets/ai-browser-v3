@@ -12,8 +12,14 @@ export function createBrowserWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: true
+      webSecurity: false, // Allow cross-origin requests
+      allowRunningInsecureContent: true
     }
+  });
+  
+  // Prevent window from showing
+  browserWindow.on('ready-to-show', () => {
+    // Keep it hidden
   });
   
   return browserWindow;
@@ -24,8 +30,15 @@ export async function navigateTo(url) {
     browserWindow = createBrowserWindow();
   }
   
-  await browserWindow.loadURL(url);
-  return url;
+  try {
+    await browserWindow.loadURL(url);
+    // Wait for page to load
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    return url;
+  } catch (error) {
+    console.error('Failed to navigate:', error);
+    throw error;
+  }
 }
 
 export async function getPageContent() {
@@ -50,5 +63,12 @@ export async function getPageURL() {
 
 export async function takeScreenshot() {
   if (!browserWindow) return null;
-  return await browserWindow.webContents.capturePage();
+  
+  try {
+    const image = await browserWindow.webContents.capturePage();
+    return image.toDataURL();
+  } catch (error) {
+    console.error('Failed to take screenshot:', error);
+    return null;
+  }
 }
