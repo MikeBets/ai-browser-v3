@@ -4,7 +4,6 @@ import './style.css';
 function App() {
   const [url, setUrl] = useState('https://www.google.com');
   const [query, setQuery] = useState('');
-  const [response, setResponse] = useState('💬 准备好帮助您浏览网页了！');
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [chatHistory, setChatHistory] = useState([
@@ -12,7 +11,6 @@ function App() {
   ]);
   const webviewRef = useRef(null);
   const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
   const chatEndRef = useRef(null);
 
   // 热门网站
@@ -37,16 +35,19 @@ function App() {
     };
 
     const handleStartLoading = () => {
-      setResponse('⏳ 加载中...');
+      // 可以在状态栏显示，现在用聊天历史替代
     };
 
     const handleStopLoading = () => {
-      setResponse(`✅ 已加载: ${webview.getTitle()}`);
+      // 页面加载完成
     };
 
     const handleFailLoad = (e) => {
       console.error('加载失败:', e);
-      setResponse(`❌ 页面加载失败`);
+      setChatHistory(prev => [...prev, { 
+        type: 'assistant', 
+        content: `❌ 页面加载失败` 
+      }]);
     };
 
     const handleNewWindow = (e) => {
@@ -166,7 +167,6 @@ function App() {
     setChatHistory(prev => [...prev, userMessage]);
     
     setLoading(true);
-    setResponse('🔄 处理中...');
     
     try {
       const pageContent = await getPageContent();
@@ -187,7 +187,6 @@ function App() {
         case 'navigate':
           if (aiResponse.url) {
             assistantResponse = `📍 正在导航到 ${aiResponse.url}...`;
-            setResponse(assistantResponse);
             loadSite(aiResponse.url);
           }
           break;
@@ -196,7 +195,6 @@ function App() {
           if (aiResponse.query) {
             const searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(aiResponse.query)}`;
             assistantResponse = `🔍 正在搜索: ${aiResponse.query}...`;
-            setResponse(assistantResponse);
             loadSite(searchUrl);
           }
           break;
@@ -205,12 +203,10 @@ function App() {
         case 'extract':
         case 'answer':
           assistantResponse = aiResponse.content || '暂无响应';
-          setResponse(assistantResponse);
           break;
           
         default:
           assistantResponse = aiResponse.content || JSON.stringify(aiResponse);
-          setResponse(assistantResponse);
       }
       
       // 添加助手响应到历史
@@ -222,7 +218,10 @@ function App() {
       setQuery('');
       
     } catch (error) {
-      setResponse('❌ 错误：命令处理失败');
+      setChatHistory(prev => [...prev, { 
+        type: 'assistant', 
+        content: '❌ 错误：命令处理失败' 
+      }]);
       console.error('查询错误:', error);
     } finally {
       setLoading(false);
