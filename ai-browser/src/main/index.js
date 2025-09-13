@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { streamText, tool } from 'ai';
+import { streamText, generateText, tool, jsonSchema, stepCountIs } from 'ai';
 import { google } from '@ai-sdk/google';
 import dotenv from 'dotenv';
 import { z } from 'zod';
@@ -10,6 +10,11 @@ import { navigateTo, getPageContent, getPageTitle, getPageURL, takeScreenshot } 
 dotenv.config();
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
+
+// Expose Chrome DevTools Protocol for electron-mcp (port 9222)
+try {
+  app.commandLine.appendSwitch('remote-debugging-port', '9222');
+} catch {}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -35,67 +40,122 @@ function createWindow() {
 
 // Handle AI Agent queries with multi-step tools
 ipcMain.handle('ai-query', async (event, { query }) => {
+  console.log('AI Query received:', query);
   try {
     // Define tools the model can call in multiple steps
     let lastNavigatedUrl = '';
 
     const navigate = tool({
       description: '打开或跳转到指定网页（仅支持 http/https）。',
-      parameters: z.object({
-        url: z.string().describe('要打开的完整 URL')
+      inputSchema: jsonSchema({
+        type: 'object',
+        properties: {
+          url: { type: 'string', description: '要打开的完整 URL' }
+        },
+        required: ['url'],
+        additionalProperties: false
       }),
       execute: async ({ url }) => {
+        console.log('Tool: navigate called with URL:', url);
         // Basic URL guard
         if (!/^https?:\/\//i.test(url)) {
           url = `https://${url}`;
         }
         lastNavigatedUrl = await navigateTo(url);
         const title = await getPageTitle();
+        console.log('Navigate result:', { url: lastNavigatedUrl, title });
         return { ok: true, url: await getPageURL(), title };
       }
     });
 
     const readPage = tool({
       description: '读取当前页面的标题与正文（自动截断到安全长度）。',
-      parameters: z.object({}),
+      inputSchema: jsonSchema({
+        type: 'object',
+        properties: {},
+        additionalProperties: false
+      }),
       execute: async () => {
+        console.log('Tool: readPage called');
         const url = await getPageURL();
         const title = await getPageTitle();
         const content = await getPageContent();
+        console.log('ReadPage result:', { url, title, contentLength: content?.length });
         return { url, title, content };
       }
     });
 
     // System guidance for multi-step behavior
-    const systemPrompt = `你是一个“AI 浏览器”代理。可以多步调用工具来完成任务：
-1) 如需打开网页，请调用 navigate。
-2) 在回答与当前页面相关的问题前，必须调用 readPage 获取内容。
-3) 最终请输出面向用户的简洁中文回答（不要再输出 JSON）。
+    const systemPrompt = `你是一个"AI 浏览器"代理。你必须按以下步骤处理用户请求：
 
-常见中文网站映射（当用户只说站点名时请用对应网址）：
-- 知乎 -> https://www.zhihu.com
-- 百度 -> https://www.baidu.com
-- 微博 -> https://weibo.com
-- 淘宝 -> https://www.taobao.com
-- 京东 -> https://www.jd.com
-- 抖音 -> https://www.douyin.com
-- B站/bilibili -> https://www.bilibili.com`;
+重要规则：
+- 当用户要求"打开X并总结"时，你必须执行两个步骤：
+  步骤1: 调用 navigate 工具打开网页
+  步骤2: 调用 readPage 工具获取页面内容
+  步骤3: 基于获取的内容生成总结
 
-    const result = await streamText({
-      model: google('gemini-2.5-flash'),
+- 绝对不要只调用 navigate 就结束
+- 如果用户要求总结或分析页面，你必须先调用 readPage 获取内容
+- 只有在获取页面内容后，才能生成有意义的总结
+
+常见北美网站映射（当用户只说站点名时请用对应网址）：
+- Hacker News/HN -> https://news.ycombinator.com
+- Google News -> https://news.google.com
+- CBC -> https://www.cbc.ca
+- Global News -> https://globalnews.ca
+- CTV -> https://www.ctvnews.ca
+- Reuters -> https://www.reuters.com
+- AP/Associated Press -> https://apnews.com
+- NPR -> https://www.npr.org
+- NASA -> https://www.nasa.gov/news/
+- FDA -> https://www.fda.gov/news-events/press-announcements
+- Bank of Canada/BoC -> https://www.bankofcanada.ca
+- Government of Canada/Canada.ca -> https://www.canada.ca
+- The Verge -> https://www.theverge.com`;
+
+
+    console.log('Calling Gemini with query...');
+
+    // Enhanced prompt to ensure multi-step execution
+    const enhancedPrompt = `${query}
+
+记住：你必须执行以下步骤：
+1. 使用 navigate 工具打开网页
+2. 使用 readPage 工具读取页面内容
+3. 基于读取的内容生成总结
+
+不要跳过任何步骤！`;
+
+    // Use generateText for better debugging
+    const result = await generateText({
+      model: google('gemini-2.5-flash'), // Use 2.5 Flash with thinking
       system: systemPrompt,
-      prompt: query,
+      prompt: enhancedPrompt,
       tools: { navigate, readPage },
-      maxTokens: 600,
-      maxSteps: 4
+      toolChoice: 'auto',
+      maxTokens: 800,
+      maxSteps: 10,
+      stopWhen: stepCountIs(10) // Explicitly enable multi-step
     });
 
-    const chunks = [];
-    for await (const chunk of result.textStream) {
-      chunks.push(chunk);
+    console.log('Result object:', {
+      text: result.text,
+      toolCalls: result.toolCalls?.length || 0,
+      steps: result.steps?.length || 0,
+      usage: result.usage
+    });
+
+    // Log each step
+    if (result.steps) {
+      result.steps.forEach((step, i) => {
+        console.log(`Step ${i + 1}:`, {
+          toolCalls: step.toolCalls?.map(tc => ({ name: tc.toolName, args: tc.args })),
+          text: step.text?.substring(0, 100)
+        });
+      });
     }
 
-    const finalText = chunks.join('').trim();
+    const finalText = result.text || '';
     // Return as prior protocol for renderer compatibility
     return JSON.stringify({ action: 'answer', content: finalText, url: lastNavigatedUrl || (await getPageURL()) || '' });
   } catch (error) {

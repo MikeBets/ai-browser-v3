@@ -203,6 +203,10 @@ function App() {
         case 'extract':
         case 'answer':
           assistantResponse = aiResponse.content || '暂无响应';
+          // 如果 AI 导航到了新页面，同步更新前端 webview
+          if (aiResponse.url && aiResponse.url !== currentUrl) {
+            loadSite(aiResponse.url);
+          }
           break;
           
         default:
