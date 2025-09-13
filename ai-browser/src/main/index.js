@@ -1,9 +1,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { streamText } from 'ai';
+import { streamText, tool } from 'ai';
 import { google } from '@ai-sdk/google';
 import dotenv from 'dotenv';
+import { z } from 'zod';
 import { navigateTo, getPageContent, getPageTitle, getPageURL, takeScreenshot } from './browser-controller.js';
 
 dotenv.config();
@@ -32,73 +33,74 @@ function createWindow() {
   }
 }
 
-// Handle AI Agent queries with browser control
-ipcMain.handle('ai-query', async (event, { query, pageContent, currentUrl }) => {
+// Handle AI Agent queries with multi-step tools
+ipcMain.handle('ai-query', async (event, { query }) => {
   try {
-    const systemPrompt = `你是一个AI浏览器助手，可以帮助用户浏览网页和分析内容。你能理解中文和英文。
-    
-    你可以通过返回JSON命令来执行以下操作：
-    1. 导航到网站: {"action": "navigate", "url": "https://example.com"}
-    2. 搜索内容: {"action": "search", "query": "搜索词"}
-    3. 总结当前页面: {"action": "summarize", "content": "摘要文本"}
-    4. 回答问题: {"action": "answer", "content": "回答文本"}
-    5. 提取信息: {"action": "extract", "content": "提取的信息"}
-    
-    当前页面URL: ${currentUrl}
-    当前页面内容（前1000字符）: ${pageContent.substring(0, 1000)}
-    
-    用户请求: ${query}
-    
-    分析用户的请求。如果他们想要：
-    - 访问特定网站（如"去知乎"、"打开百度"），返回navigate动作
-    - 搜索内容（如"搜索AI新闻"），返回search动作
-    - 了解当前页面（如"这个页面有什么"），分析内容并返回summarize/extract/answer
-    - 只是聊天，返回answer动作
-    
-    重要：始终返回有效的JSON对象，包含"action"和相应的字段。
-    
-    中文网站映射：
-    - "知乎" -> "https://www.zhihu.com"
-    - "百度" -> "https://www.baidu.com"
-    - "微博" -> "https://weibo.com"
-    - "淘宝" -> "https://www.taobao.com"
-    - "京东" -> "https://www.jd.com"
-    - "抖音" -> "https://www.douyin.com"
-    - "bilibili"/"B站" -> "https://www.bilibili.com"
-    
-    示例：
-    - "去知乎" -> {"action": "navigate", "url": "https://www.zhihu.com"}
-    - "搜索AI新闻" -> {"action": "search", "query": "AI新闻"}
-    - "这个页面有什么内容？" -> {"action": "summarize", "content": "这个页面包含..."}
-    - "你好" -> {"action": "answer", "content": "你好！我可以帮你浏览网页，有什么需要帮助的吗？"}`;
+    // Define tools the model can call in multiple steps
+    let lastNavigatedUrl = '';
+
+    const navigate = tool({
+      description: '打开或跳转到指定网页（仅支持 http/https）。',
+      parameters: z.object({
+        url: z.string().describe('要打开的完整 URL')
+      }),
+      execute: async ({ url }) => {
+        // Basic URL guard
+        if (!/^https?:\/\//i.test(url)) {
+          url = `https://${url}`;
+        }
+        lastNavigatedUrl = await navigateTo(url);
+        const title = await getPageTitle();
+        return { ok: true, url: await getPageURL(), title };
+      }
+    });
+
+    const readPage = tool({
+      description: '读取当前页面的标题与正文（自动截断到安全长度）。',
+      parameters: z.object({}),
+      execute: async () => {
+        const url = await getPageURL();
+        const title = await getPageTitle();
+        const content = await getPageContent();
+        return { url, title, content };
+      }
+    });
+
+    // System guidance for multi-step behavior
+    const systemPrompt = `你是一个“AI 浏览器”代理。可以多步调用工具来完成任务：
+1) 如需打开网页，请调用 navigate。
+2) 在回答与当前页面相关的问题前，必须调用 readPage 获取内容。
+3) 最终请输出面向用户的简洁中文回答（不要再输出 JSON）。
+
+常见中文网站映射（当用户只说站点名时请用对应网址）：
+- 知乎 -> https://www.zhihu.com
+- 百度 -> https://www.baidu.com
+- 微博 -> https://weibo.com
+- 淘宝 -> https://www.taobao.com
+- 京东 -> https://www.jd.com
+- 抖音 -> https://www.douyin.com
+- B站/bilibili -> https://www.bilibili.com`;
 
     const result = await streamText({
       model: google('gemini-2.5-flash'),
       system: systemPrompt,
       prompt: query,
-      maxTokens: 500
+      tools: { navigate, readPage },
+      maxTokens: 600,
+      maxSteps: 4
     });
 
-    // Collect the full response
     const chunks = [];
     for await (const chunk of result.textStream) {
       chunks.push(chunk);
     }
-    
-    const response = chunks.join('');
-    console.log('AI Response:', response);
-    
-    // Try to parse as JSON for commands
-    try {
-      const parsed = JSON.parse(response);
-      return JSON.stringify(parsed);
-    } catch {
-      // If not valid JSON, wrap as answer
-      return JSON.stringify({ action: 'answer', content: response });
-    }
+
+    const finalText = chunks.join('').trim();
+    // Return as prior protocol for renderer compatibility
+    return JSON.stringify({ action: 'answer', content: finalText, url: lastNavigatedUrl || (await getPageURL()) || '' });
   } catch (error) {
-    console.error('AI Error:', error);
-    return JSON.stringify({ action: 'answer', content: 'Sorry, I encountered an error. Please try again.' });
+    console.error('AI Agent Error:', error);
+    return JSON.stringify({ action: 'answer', content: '❌ 发生错误：处理失败，请稍后重试。' });
   }
 });
 
