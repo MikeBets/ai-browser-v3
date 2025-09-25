@@ -13,7 +13,7 @@
 ### 主要功能
 
 - 🌐 **網頁瀏覽器**：完整的 webview 瀏覽體驗
-- 🤖 **AI 助手**：使用 Google Gemini 與 AI 討論網頁內容
+- 🤖 **AI 助手**：透過 OpenRouter 預設使用 x-ai/grok-4-fast 模型分析網頁內容
 - 💬 **聊天紀錄**：完整對話歷史與美觀介面
 - 🎯 **智慧導航**：使用自然語言控制瀏覽
 
@@ -21,7 +21,7 @@
 
 - **Electron-Vite**：快速開發與熱重載
 - **React**：現代前端框架
-- **Google Gemini AI**：透過 Vercel AI SDK 的進階語言模型
+- **OpenRouter AI**：透過 Vercel AI SDK 使用多供應商模型（預設 x-ai/grok-4-fast）
 - **Web Speech API**：語音識別功能
 - **Node.js 18+**：執行環境
 
@@ -42,7 +42,7 @@ npm run build
 
 建立 `.env` 檔案並加入您的 API 金鑰：
 ```
-GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+OPENROUTER_API_KEY=your_api_key_here
 ```
 
 ## 課程背景

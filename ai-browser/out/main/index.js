@@ -4,10 +4,10 @@ import { fileURLToPath } from "url";
 import require$$0 from "fs";
 import require$$2 from "os";
 import require$$3 from "crypto";
-var marker$2 = "vercel.ai.error";
-var symbol$2 = Symbol.for(marker$2);
-var _a$2;
-var _AISDKError = class _AISDKError2 extends Error {
+var marker$3 = "vercel.ai.error";
+var symbol$3 = Symbol.for(marker$3);
+var _a$3;
+var _AISDKError$1 = class _AISDKError extends Error {
   /**
    * Creates an AI SDK Error.
    *
@@ -22,7 +22,7 @@ var _AISDKError = class _AISDKError2 extends Error {
     cause
   }) {
     super(message);
-    this[_a$2] = true;
+    this[_a$3] = true;
     this.name = name142;
     this.cause = cause;
   }
@@ -32,20 +32,20 @@ var _AISDKError = class _AISDKError2 extends Error {
    * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
    */
   static isInstance(error) {
-    return _AISDKError2.hasMarker(error, marker$2);
+    return _AISDKError.hasMarker(error, marker$3);
   }
   static hasMarker(error, marker152) {
     const markerSymbol = Symbol.for(marker152);
     return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
   }
 };
-_a$2 = symbol$2;
-var AISDKError = _AISDKError;
-var name$2 = "AI_APICallError";
-var marker2$2 = `vercel.ai.error.${name$2}`;
-var symbol2$2 = Symbol.for(marker2$2);
-var _a2$2;
-var APICallError = class extends AISDKError {
+_a$3 = symbol$3;
+var AISDKError$1 = _AISDKError$1;
+var name$3 = "AI_APICallError";
+var marker2$3 = `vercel.ai.error.${name$3}`;
+var symbol2$3 = Symbol.for(marker2$3);
+var _a2$3;
+var APICallError$1 = class APICallError extends AISDKError$1 {
   constructor({
     message,
     url,
@@ -61,8 +61,8 @@ var APICallError = class extends AISDKError {
     // server error
     data
   }) {
-    super({ name: name$2, message, cause });
-    this[_a2$2] = true;
+    super({ name: name$3, message, cause });
+    this[_a2$3] = true;
     this.url = url;
     this.requestBodyValues = requestBodyValues;
     this.statusCode = statusCode;
@@ -72,26 +72,26 @@ var APICallError = class extends AISDKError {
     this.data = data;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker2$2);
+    return AISDKError$1.hasMarker(error, marker2$3);
   }
 };
-_a2$2 = symbol2$2;
-var name2$2 = "AI_EmptyResponseBodyError";
-var marker3$1 = `vercel.ai.error.${name2$2}`;
-var symbol3$1 = Symbol.for(marker3$1);
-var _a3$1;
-var EmptyResponseBodyError = class extends AISDKError {
+_a2$3 = symbol2$3;
+var name2$3 = "AI_EmptyResponseBodyError";
+var marker3$2 = `vercel.ai.error.${name2$3}`;
+var symbol3$2 = Symbol.for(marker3$2);
+var _a3$2;
+var EmptyResponseBodyError$1 = class EmptyResponseBodyError extends AISDKError$1 {
   // used in isInstance
   constructor({ message = "Empty response body" } = {}) {
-    super({ name: name2$2, message });
-    this[_a3$1] = true;
+    super({ name: name2$3, message });
+    this[_a3$2] = true;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker3$1);
+    return AISDKError$1.hasMarker(error, marker3$2);
   }
 };
-_a3$1 = symbol3$1;
-function getErrorMessage$1(error) {
+_a3$2 = symbol3$2;
+function getErrorMessage$2(error) {
   if (error == null) {
     return "unknown error";
   }
@@ -103,84 +103,69 @@ function getErrorMessage$1(error) {
   }
   return JSON.stringify(error);
 }
-var name3$1 = "AI_InvalidArgumentError";
-var marker4$2 = `vercel.ai.error.${name3$1}`;
-var symbol4$2 = Symbol.for(marker4$2);
-var _a4$2;
-var InvalidArgumentError$1 = class InvalidArgumentError extends AISDKError {
+var name3$2 = "AI_InvalidArgumentError";
+var marker4$3 = `vercel.ai.error.${name3$2}`;
+var symbol4$3 = Symbol.for(marker4$3);
+var _a4$3;
+var InvalidArgumentError$2 = class InvalidArgumentError extends AISDKError$1 {
   constructor({
     message,
     cause,
     argument
   }) {
-    super({ name: name3$1, message, cause });
-    this[_a4$2] = true;
+    super({ name: name3$2, message, cause });
+    this[_a4$3] = true;
     this.argument = argument;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker4$2);
+    return AISDKError$1.hasMarker(error, marker4$3);
   }
 };
-_a4$2 = symbol4$2;
-var name4$2 = "AI_InvalidPromptError";
-var marker5$1 = `vercel.ai.error.${name4$2}`;
-var symbol5$1 = Symbol.for(marker5$1);
-var _a5$1;
-var InvalidPromptError = class extends AISDKError {
+_a4$3 = symbol4$3;
+var name4$3 = "AI_InvalidPromptError";
+var marker5$2 = `vercel.ai.error.${name4$3}`;
+var symbol5$2 = Symbol.for(marker5$2);
+var _a5$2;
+var InvalidPromptError$1 = class InvalidPromptError extends AISDKError$1 {
   constructor({
     prompt,
     message,
     cause
   }) {
-    super({ name: name4$2, message: `Invalid prompt: ${message}`, cause });
-    this[_a5$1] = true;
+    super({ name: name4$3, message: `Invalid prompt: ${message}`, cause });
+    this[_a5$2] = true;
     this.prompt = prompt;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker5$1);
+    return AISDKError$1.hasMarker(error, marker5$2);
   }
 };
-_a5$1 = symbol5$1;
-var name6$1 = "AI_JSONParseError";
-var marker7$2 = `vercel.ai.error.${name6$1}`;
-var symbol7$2 = Symbol.for(marker7$2);
-var _a7$2;
-var JSONParseError = class extends AISDKError {
+_a5$2 = symbol5$2;
+var name6$2 = "AI_JSONParseError";
+var marker7$3 = `vercel.ai.error.${name6$2}`;
+var symbol7$3 = Symbol.for(marker7$3);
+var _a7$3;
+var JSONParseError$1 = class JSONParseError extends AISDKError$1 {
   constructor({ text: text2, cause }) {
     super({
-      name: name6$1,
+      name: name6$2,
       message: `JSON parsing failed: Text: ${text2}.
-Error message: ${getErrorMessage$1(cause)}`,
+Error message: ${getErrorMessage$2(cause)}`,
       cause
     });
-    this[_a7$2] = true;
+    this[_a7$3] = true;
     this.text = text2;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker7$2);
+    return AISDKError$1.hasMarker(error, marker7$3);
   }
 };
-_a7$2 = symbol7$2;
-var name7$1 = "AI_LoadAPIKeyError";
-var marker8 = `vercel.ai.error.${name7$1}`;
-var symbol8 = Symbol.for(marker8);
-var _a8;
-var LoadAPIKeyError = class extends AISDKError {
-  // used in isInstance
-  constructor({ message }) {
-    super({ name: name7$1, message });
-    this[_a8] = true;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker8);
-  }
-};
-_a8 = symbol8;
+_a7$3 = symbol7$3;
 var name10$1 = "AI_NoSuchModelError";
 var marker11 = `vercel.ai.error.${name10$1}`;
 var symbol11 = Symbol.for(marker11);
 var _a11;
-var NoSuchModelError = class extends AISDKError {
+var NoSuchModelError = class extends AISDKError$1 {
   constructor({
     errorName = name10$1,
     modelId,
@@ -193,48 +178,27 @@ var NoSuchModelError = class extends AISDKError {
     this.modelType = modelType;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker11);
+    return AISDKError$1.hasMarker(error, marker11);
   }
 };
 _a11 = symbol11;
-var name11 = "AI_TooManyEmbeddingValuesForCallError";
-var marker12$1 = `vercel.ai.error.${name11}`;
-var symbol12$1 = Symbol.for(marker12$1);
-var _a12$1;
-var TooManyEmbeddingValuesForCallError = class extends AISDKError {
-  constructor(options) {
-    super({
-      name: name11,
-      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
-    });
-    this[_a12$1] = true;
-    this.provider = options.provider;
-    this.modelId = options.modelId;
-    this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall;
-    this.values = options.values;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker12$1);
-  }
-};
-_a12$1 = symbol12$1;
-var name12$1 = "AI_TypeValidationError";
-var marker13 = `vercel.ai.error.${name12$1}`;
-var symbol13 = Symbol.for(marker13);
-var _a13;
-var _TypeValidationError = class _TypeValidationError2 extends AISDKError {
+var name12$2 = "AI_TypeValidationError";
+var marker13$1 = `vercel.ai.error.${name12$2}`;
+var symbol13$1 = Symbol.for(marker13$1);
+var _a13$1;
+var _TypeValidationError$1 = class _TypeValidationError extends AISDKError$1 {
   constructor({ value, cause }) {
     super({
-      name: name12$1,
+      name: name12$2,
       message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage$1(cause)}`,
+Error message: ${getErrorMessage$2(cause)}`,
       cause
     });
-    this[_a13] = true;
+    this[_a13$1] = true;
     this.value = value;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker13);
+    return AISDKError$1.hasMarker(error, marker13$1);
   }
   /**
    * Wraps an error into a TypeValidationError.
@@ -250,45 +214,27 @@ Error message: ${getErrorMessage$1(cause)}`,
     value,
     cause
   }) {
-    return _TypeValidationError2.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError2({ value, cause });
+    return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
   }
 };
-_a13 = symbol13;
-var TypeValidationError = _TypeValidationError;
-var name13 = "AI_UnsupportedFunctionalityError";
-var marker14$1 = `vercel.ai.error.${name13}`;
-var symbol14$1 = Symbol.for(marker14$1);
-var _a14$1;
-var UnsupportedFunctionalityError = class extends AISDKError {
-  constructor({
-    functionality,
-    message = `'${functionality}' functionality not supported.`
-  }) {
-    super({ name: name13, message });
-    this[_a14$1] = true;
-    this.functionality = functionality;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker14$1);
-  }
-};
-_a14$1 = symbol14$1;
-class ParseError extends Error {
+_a13$1 = symbol13$1;
+var TypeValidationError$1 = _TypeValidationError$1;
+let ParseError$1 = class ParseError extends Error {
   constructor(message, options) {
     super(message), this.name = "ParseError", this.type = options.type, this.field = options.field, this.value = options.value, this.line = options.line;
   }
+};
+function noop$1(_arg) {
 }
-function noop(_arg) {
-}
-function createParser(callbacks) {
+function createParser$1(callbacks) {
   if (typeof callbacks == "function")
     throw new TypeError(
       "`callbacks` must be an object, got a function instead. Did you mean `{onEvent: fn}`?"
     );
-  const { onEvent = noop, onError = noop, onRetry = noop, onComment } = callbacks;
+  const { onEvent = noop$1, onError = noop$1, onRetry = noop$1, onComment } = callbacks;
   let incompleteLine = "", isFirstChunk = true, id, data = "", eventType = "";
   function feed(newChunk) {
-    const chunk = isFirstChunk ? newChunk.replace(/^\xEF\xBB\xBF/, "") : newChunk, [complete, incomplete] = splitLines(`${incompleteLine}${chunk}`);
+    const chunk = isFirstChunk ? newChunk.replace(/^\xEF\xBB\xBF/, "") : newChunk, [complete, incomplete] = splitLines$1(`${incompleteLine}${chunk}`);
     for (const line of complete)
       parseLine(line);
     incompleteLine = incomplete, isFirstChunk = false;
@@ -324,7 +270,7 @@ function createParser(callbacks) {
         break;
       case "retry":
         /^\d+$/.test(value) ? onRetry(parseInt(value, 10)) : onError(
-          new ParseError(`Invalid \`retry\` value: "${value}"`, {
+          new ParseError$1(`Invalid \`retry\` value: "${value}"`, {
             type: "invalid-retry",
             value,
             line
@@ -333,7 +279,7 @@ function createParser(callbacks) {
         break;
       default:
         onError(
-          new ParseError(
+          new ParseError$1(
             `Unknown field "${field.length > 20 ? `${field.slice(0, 20)}…` : field}"`,
             { type: "unknown-field", field, value, line }
           )
@@ -356,7 +302,7 @@ function createParser(callbacks) {
   }
   return { feed, reset };
 }
-function splitLines(chunk) {
+function splitLines$1(chunk) {
   const lines = [];
   let incompleteLine = "", searchIndex = 0;
   for (; searchIndex < chunk.length; ) {
@@ -374,12 +320,12 @@ function splitLines(chunk) {
   }
   return [lines, incompleteLine];
 }
-class EventSourceParserStream extends TransformStream {
+let EventSourceParserStream$1 = class EventSourceParserStream extends TransformStream {
   constructor({ onError, onRetry, onComment } = {}) {
     let parser;
     super({
       start(controller) {
-        parser = createParser({
+        parser = createParser$1({
           onEvent: (event) => {
             controller.enqueue(event);
           },
@@ -395,7 +341,7 @@ class EventSourceParserStream extends TransformStream {
       }
     });
   }
-}
+};
 function $constructor(name8, initializer2, params) {
   function init(inst, def) {
     var _a16;
@@ -889,7 +835,7 @@ function formatError(error, _mapper) {
   processError(error);
   return fieldErrors;
 }
-const _parse$1 = (_Err) => (schema, value, _ctx, _params) => {
+const _parse$2 = (_Err) => (schema, value, _ctx, _params) => {
   const ctx = _ctx ? Object.assign(_ctx, { async: false }) : { async: false };
   const result = schema._zod.run({ value, issues: [] }, ctx);
   if (result instanceof Promise) {
@@ -4131,7 +4077,7 @@ const initializer = (inst, issues) => {
 const ZodRealError = $constructor("ZodError", initializer, {
   Parent: Error
 });
-const parse = /* @__PURE__ */ _parse$1(ZodRealError);
+const parse = /* @__PURE__ */ _parse$2(ZodRealError);
 const parseAsync = /* @__PURE__ */ _parseAsync(ZodRealError);
 const safeParse = /* @__PURE__ */ _safeParse(ZodRealError);
 const safeParseAsync = /* @__PURE__ */ _safeParseAsync(ZodRealError);
@@ -5916,11 +5862,11 @@ const addMeta = (def, refs, jsonSchema2) => {
 };
 const zodToJsonSchema = (schema, options) => {
   const refs = getRefs(options);
-  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name16, schema2]) => ({
+  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name11, schema2]) => ({
     ...acc,
-    [name16]: parseDef(schema2._def, {
+    [name11]: parseDef(schema2._def, {
       ...refs,
-      currentPath: [...refs.basePath, refs.definitionPath, name16]
+      currentPath: [...refs.basePath, refs.definitionPath, name11]
     }, true) ?? parseAnyDef(refs)
   }), {}) : void 0;
   const name8 = typeof options === "string" ? options : options?.nameStrategy === "title" ? void 0 : options?.name;
@@ -5974,7 +5920,7 @@ const zodToJsonSchema = (schema, options) => {
   }
   return combined;
 };
-function combineHeaders(...headers) {
+function combineHeaders$1(...headers) {
   return headers.reduce(
     (combinedHeaders, currentHeaders) => ({
       ...combinedHeaders,
@@ -6011,10 +5957,10 @@ async function delay(delayInMs, options) {
 function createAbortError() {
   return new DOMException("Delay was aborted", "AbortError");
 }
-function extractResponseHeaders(response) {
+function extractResponseHeaders$1(response) {
   return Object.fromEntries([...response.headers]);
 }
-var createIdGenerator = ({
+var createIdGenerator$1 = ({
   prefix,
   size = 16,
   alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -6032,15 +5978,15 @@ var createIdGenerator = ({
     return generator;
   }
   if (alphabet.includes(separator)) {
-    throw new InvalidArgumentError$1({
+    throw new InvalidArgumentError$2({
       argument: "separator",
       message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
     });
   }
   return () => `${prefix}${separator}${generator()}`;
 };
-var generateId = createIdGenerator();
-function getErrorMessage(error) {
+createIdGenerator$1();
+function getErrorMessage$1(error) {
   if (error == null) {
     return "unknown error";
   }
@@ -6052,23 +5998,23 @@ function getErrorMessage(error) {
   }
   return JSON.stringify(error);
 }
-function isAbortError(error) {
+function isAbortError$1(error) {
   return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
   error.name === "TimeoutError");
 }
-var FETCH_FAILED_ERROR_MESSAGES = ["fetch failed", "failed to fetch"];
-function handleFetchError({
+var FETCH_FAILED_ERROR_MESSAGES$1 = ["fetch failed", "failed to fetch"];
+function handleFetchError$1({
   error,
   url,
   requestBodyValues
 }) {
-  if (isAbortError(error)) {
+  if (isAbortError$1(error)) {
     return error;
   }
-  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES.includes(error.message.toLowerCase())) {
+  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES$1.includes(error.message.toLowerCase())) {
     const cause = error.cause;
     if (cause != null) {
-      return new APICallError({
+      return new APICallError$1({
         message: `Cannot connect to API: ${cause.message}`,
         cause,
         url,
@@ -6080,7 +6026,7 @@ function handleFetchError({
   }
   return error;
 }
-function removeUndefinedEntries(record2) {
+function removeUndefinedEntries$1(record2) {
   return Object.fromEntries(
     Object.entries(record2).filter(([_key, value]) => value != null)
   );
@@ -6097,10 +6043,10 @@ var getFromApi = async ({
   try {
     const response = await fetch2(url, {
       method: "GET",
-      headers: removeUndefinedEntries(headers),
+      headers: removeUndefinedEntries$1(headers),
       signal: abortSignal
     });
-    const responseHeaders = extractResponseHeaders(response);
+    const responseHeaders = extractResponseHeaders$1(response);
     if (!response.ok) {
       let errorInformation;
       try {
@@ -6110,10 +6056,10 @@ var getFromApi = async ({
           requestBodyValues: {}
         });
       } catch (error) {
-        if (isAbortError(error) || APICallError.isInstance(error)) {
+        if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
           throw error;
         }
-        throw new APICallError({
+        throw new APICallError$1({
           message: "Failed to process error response",
           cause: error,
           statusCode: response.status,
@@ -6132,11 +6078,11 @@ var getFromApi = async ({
       });
     } catch (error) {
       if (error instanceof Error) {
-        if (isAbortError(error) || APICallError.isInstance(error)) {
+        if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
           throw error;
         }
       }
-      throw new APICallError({
+      throw new APICallError$1({
         message: "Failed to process successful response",
         cause: error,
         statusCode: response.status,
@@ -6146,7 +6092,7 @@ var getFromApi = async ({
       });
     }
   } catch (error) {
-    throw handleFetchError({ error, url, requestBodyValues: {} });
+    throw handleFetchError$1({ error, url, requestBodyValues: {} });
   }
 };
 function isUrlSupported({
@@ -6160,38 +6106,6 @@ function isUrlSupported({
     const mediaType2 = key.toLowerCase();
     return mediaType2 === "*" || mediaType2 === "*/*" ? { mediaTypePrefix: "", regexes: value } : { mediaTypePrefix: mediaType2.replace(/\*/, ""), regexes: value };
   }).filter(({ mediaTypePrefix }) => mediaType.startsWith(mediaTypePrefix)).flatMap(({ regexes }) => regexes).some((pattern) => pattern.test(url));
-}
-function loadApiKey({
-  apiKey,
-  environmentVariableName,
-  apiKeyParameterName = "apiKey",
-  description
-}) {
-  if (typeof apiKey === "string") {
-    return apiKey;
-  }
-  if (apiKey != null) {
-    throw new LoadAPIKeyError({
-      message: `${description} API key must be a string.`
-    });
-  }
-  if (typeof process === "undefined") {
-    throw new LoadAPIKeyError({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables is not supported in this environment.`
-    });
-  }
-  apiKey = process.env[environmentVariableName];
-  if (apiKey == null) {
-    throw new LoadAPIKeyError({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
-    });
-  }
-  if (typeof apiKey !== "string") {
-    throw new LoadAPIKeyError({
-      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
-    });
-  }
-  return apiKey;
 }
 function loadOptionalSetting({
   settingValue,
@@ -6209,19 +6123,19 @@ function loadOptionalSetting({
   }
   return settingValue;
 }
-var suspectProtoRx = /"__proto__"\s*:/;
-var suspectConstructorRx = /"constructor"\s*:/;
-function _parse(text2) {
+var suspectProtoRx$1 = /"__proto__"\s*:/;
+var suspectConstructorRx$1 = /"constructor"\s*:/;
+function _parse$1(text2) {
   const obj = JSON.parse(text2);
   if (obj === null || typeof obj !== "object") {
     return obj;
   }
-  if (suspectProtoRx.test(text2) === false && suspectConstructorRx.test(text2) === false) {
+  if (suspectProtoRx$1.test(text2) === false && suspectConstructorRx$1.test(text2) === false) {
     return obj;
   }
-  return filter(obj);
+  return filter$1(obj);
 }
-function filter(obj) {
+function filter$1(obj) {
   let next = [obj];
   while (next.length) {
     const nodes = next;
@@ -6243,52 +6157,52 @@ function filter(obj) {
   }
   return obj;
 }
-function secureJsonParse(text2) {
+function secureJsonParse$1(text2) {
   const { stackTraceLimit } = Error;
   Error.stackTraceLimit = 0;
   try {
-    return _parse(text2);
+    return _parse$1(text2);
   } finally {
     Error.stackTraceLimit = stackTraceLimit;
   }
 }
-var validatorSymbol = Symbol.for("vercel.ai.validator");
-function validator(validate) {
-  return { [validatorSymbol]: true, validate };
+var validatorSymbol$1 = Symbol.for("vercel.ai.validator");
+function validator$1(validate) {
+  return { [validatorSymbol$1]: true, validate };
 }
-function isValidator(value) {
-  return typeof value === "object" && value !== null && validatorSymbol in value && value[validatorSymbol] === true && "validate" in value;
+function isValidator$1(value) {
+  return typeof value === "object" && value !== null && validatorSymbol$1 in value && value[validatorSymbol$1] === true && "validate" in value;
 }
-function asValidator(value) {
-  return isValidator(value) ? value : standardSchemaValidator(value);
+function asValidator$1(value) {
+  return isValidator$1(value) ? value : standardSchemaValidator$1(value);
 }
-function standardSchemaValidator(standardSchema) {
-  return validator(async (value) => {
+function standardSchemaValidator$1(standardSchema) {
+  return validator$1(async (value) => {
     const result = await standardSchema["~standard"].validate(value);
     return result.issues == null ? { success: true, value: result.value } : {
       success: false,
-      error: new TypeValidationError({
+      error: new TypeValidationError$1({
         value,
         cause: result.issues
       })
     };
   });
 }
-async function validateTypes({
+async function validateTypes$1({
   value,
   schema
 }) {
-  const result = await safeValidateTypes({ value, schema });
+  const result = await safeValidateTypes$1({ value, schema });
   if (!result.success) {
-    throw TypeValidationError.wrap({ value, cause: result.error });
+    throw TypeValidationError$1.wrap({ value, cause: result.error });
   }
   return result.value;
 }
-async function safeValidateTypes({
+async function safeValidateTypes$1({
   value,
   schema
 }) {
-  const validator2 = asValidator(schema);
+  const validator2 = asValidator$1(schema);
   try {
     if (validator2.validate == null) {
       return { success: true, value, rawValue: value };
@@ -6299,90 +6213,69 @@ async function safeValidateTypes({
     }
     return {
       success: false,
-      error: TypeValidationError.wrap({ value, cause: result.error }),
+      error: TypeValidationError$1.wrap({ value, cause: result.error }),
       rawValue: value
     };
   } catch (error) {
     return {
       success: false,
-      error: TypeValidationError.wrap({ value, cause: error }),
+      error: TypeValidationError$1.wrap({ value, cause: error }),
       rawValue: value
     };
   }
 }
-async function parseJSON({
+async function parseJSON$1({
   text: text2,
   schema
 }) {
   try {
-    const value = secureJsonParse(text2);
+    const value = secureJsonParse$1(text2);
     if (schema == null) {
       return value;
     }
-    return validateTypes({ value, schema });
+    return validateTypes$1({ value, schema });
   } catch (error) {
-    if (JSONParseError.isInstance(error) || TypeValidationError.isInstance(error)) {
+    if (JSONParseError$1.isInstance(error) || TypeValidationError$1.isInstance(error)) {
       throw error;
     }
-    throw new JSONParseError({ text: text2, cause: error });
+    throw new JSONParseError$1({ text: text2, cause: error });
   }
 }
-async function safeParseJSON({
+async function safeParseJSON$1({
   text: text2,
   schema
 }) {
   try {
-    const value = secureJsonParse(text2);
+    const value = secureJsonParse$1(text2);
     if (schema == null) {
       return { success: true, value, rawValue: value };
     }
-    return await safeValidateTypes({ value, schema });
+    return await safeValidateTypes$1({ value, schema });
   } catch (error) {
     return {
       success: false,
-      error: JSONParseError.isInstance(error) ? error : new JSONParseError({ text: text2, cause: error }),
+      error: JSONParseError$1.isInstance(error) ? error : new JSONParseError$1({ text: text2, cause: error }),
       rawValue: void 0
     };
   }
 }
-function parseJsonEventStream({
+function parseJsonEventStream$1({
   stream,
   schema
 }) {
-  return stream.pipeThrough(new TextDecoderStream()).pipeThrough(new EventSourceParserStream()).pipeThrough(
+  return stream.pipeThrough(new TextDecoderStream()).pipeThrough(new EventSourceParserStream$1()).pipeThrough(
     new TransformStream({
       async transform({ data }, controller) {
         if (data === "[DONE]") {
           return;
         }
-        controller.enqueue(await safeParseJSON({ text: data, schema }));
+        controller.enqueue(await safeParseJSON$1({ text: data, schema }));
       }
     })
   );
 }
-async function parseProviderOptions({
-  provider,
-  providerOptions,
-  schema
-}) {
-  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null) {
-    return void 0;
-  }
-  const parsedProviderOptions = await safeValidateTypes({
-    value: providerOptions[provider],
-    schema
-  });
-  if (!parsedProviderOptions.success) {
-    throw new InvalidArgumentError$1({
-      argument: "providerOptions",
-      message: `invalid ${provider} provider options`,
-      cause: parsedProviderOptions.error
-    });
-  }
-  return parsedProviderOptions.value;
-}
-var getOriginalFetch2 = () => globalThis.fetch;
-var postJsonToApi = async ({
+var getOriginalFetch2$1 = () => globalThis.fetch;
+var postJsonToApi$1 = async ({
   url,
   headers,
   body,
@@ -6390,7 +6283,7 @@ var postJsonToApi = async ({
   successfulResponseHandler,
   abortSignal,
   fetch: fetch2
-}) => postToApi({
+}) => postToApi$1({
   url,
   headers: {
     "Content-Type": "application/json",
@@ -6405,23 +6298,23 @@ var postJsonToApi = async ({
   abortSignal,
   fetch: fetch2
 });
-var postToApi = async ({
+var postToApi$1 = async ({
   url,
   headers = {},
   body,
   successfulResponseHandler,
   failedResponseHandler,
   abortSignal,
-  fetch: fetch2 = getOriginalFetch2()
+  fetch: fetch2 = getOriginalFetch2$1()
 }) => {
   try {
     const response = await fetch2(url, {
       method: "POST",
-      headers: removeUndefinedEntries(headers),
+      headers: removeUndefinedEntries$1(headers),
       body: body.content,
       signal: abortSignal
     });
-    const responseHeaders = extractResponseHeaders(response);
+    const responseHeaders = extractResponseHeaders$1(response);
     if (!response.ok) {
       let errorInformation;
       try {
@@ -6431,10 +6324,10 @@ var postToApi = async ({
           requestBodyValues: body.values
         });
       } catch (error) {
-        if (isAbortError(error) || APICallError.isInstance(error)) {
+        if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
           throw error;
         }
-        throw new APICallError({
+        throw new APICallError$1({
           message: "Failed to process error response",
           cause: error,
           statusCode: response.status,
@@ -6453,11 +6346,11 @@ var postToApi = async ({
       });
     } catch (error) {
       if (error instanceof Error) {
-        if (isAbortError(error) || APICallError.isInstance(error)) {
+        if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
           throw error;
         }
       }
-      throw new APICallError({
+      throw new APICallError$1({
         message: "Failed to process successful response",
         cause: error,
         statusCode: response.status,
@@ -6467,65 +6360,11 @@ var postToApi = async ({
       });
     }
   } catch (error) {
-    throw handleFetchError({ error, url, requestBodyValues: body.values });
+    throw handleFetchError$1({ error, url, requestBodyValues: body.values });
   }
 };
 function tool(tool2) {
   return tool2;
-}
-function createProviderDefinedToolFactory({
-  id,
-  name: name8,
-  inputSchema
-}) {
-  return ({
-    execute,
-    outputSchema: outputSchema2,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-    ...args
-  }) => tool({
-    type: "provider-defined",
-    id,
-    name: name8,
-    args,
-    inputSchema,
-    outputSchema: outputSchema2,
-    execute,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable
-  });
-}
-function createProviderDefinedToolFactoryWithOutputSchema({
-  id,
-  name: name8,
-  inputSchema,
-  outputSchema: outputSchema2
-}) {
-  return ({
-    execute,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-    ...args
-  }) => tool({
-    type: "provider-defined",
-    id,
-    name: name8,
-    args,
-    inputSchema,
-    outputSchema: outputSchema2,
-    execute,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable
-  });
 }
 async function resolve(value) {
   if (typeof value === "function") {
@@ -6533,17 +6372,17 @@ async function resolve(value) {
   }
   return Promise.resolve(value);
 }
-var createJsonErrorResponseHandler = ({
+var createJsonErrorResponseHandler$1 = ({
   errorSchema,
   errorToMessage,
   isRetryable
 }) => async ({ response, url, requestBodyValues }) => {
   const responseBody = await response.text();
-  const responseHeaders = extractResponseHeaders(response);
+  const responseHeaders = extractResponseHeaders$1(response);
   if (responseBody.trim() === "") {
     return {
       responseHeaders,
-      value: new APICallError({
+      value: new APICallError$1({
         message: response.statusText,
         url,
         requestBodyValues,
@@ -6555,13 +6394,13 @@ var createJsonErrorResponseHandler = ({
     };
   }
   try {
-    const parsedError = await parseJSON({
+    const parsedError = await parseJSON$1({
       text: responseBody,
       schema: errorSchema
     });
     return {
       responseHeaders,
-      value: new APICallError({
+      value: new APICallError$1({
         message: errorToMessage(parsedError),
         url,
         requestBodyValues,
@@ -6575,7 +6414,7 @@ var createJsonErrorResponseHandler = ({
   } catch (parseError) {
     return {
       responseHeaders,
-      value: new APICallError({
+      value: new APICallError$1({
         message: response.statusText,
         url,
         requestBodyValues,
@@ -6587,28 +6426,28 @@ var createJsonErrorResponseHandler = ({
     };
   }
 };
-var createEventSourceResponseHandler = (chunkSchema2) => async ({ response }) => {
-  const responseHeaders = extractResponseHeaders(response);
+var createEventSourceResponseHandler$1 = (chunkSchema) => async ({ response }) => {
+  const responseHeaders = extractResponseHeaders$1(response);
   if (response.body == null) {
-    throw new EmptyResponseBodyError({});
+    throw new EmptyResponseBodyError$1({});
   }
   return {
     responseHeaders,
-    value: parseJsonEventStream({
+    value: parseJsonEventStream$1({
       stream: response.body,
-      schema: chunkSchema2
+      schema: chunkSchema
     })
   };
 };
-var createJsonResponseHandler = (responseSchema2) => async ({ response, url, requestBodyValues }) => {
+var createJsonResponseHandler$1 = (responseSchema) => async ({ response, url, requestBodyValues }) => {
   const responseBody = await response.text();
-  const parsedResult = await safeParseJSON({
+  const parsedResult = await safeParseJSON$1({
     text: responseBody,
-    schema: responseSchema2
+    schema: responseSchema
   });
-  const responseHeaders = extractResponseHeaders(response);
+  const responseHeaders = extractResponseHeaders$1(response);
   if (!parsedResult.success) {
-    throw new APICallError({
+    throw new APICallError$1({
       message: "Invalid JSON response",
       cause: parsedResult.error,
       statusCode: response.status,
@@ -6674,7 +6513,7 @@ function jsonSchema(jsonSchema2, {
     [schemaSymbol]: true,
     _type: void 0,
     // should never be used directly
-    [validatorSymbol]: true,
+    [validatorSymbol$1]: true,
     jsonSchema: jsonSchema2,
     validate
   };
@@ -6688,23 +6527,20 @@ function asSchema(schema) {
     additionalProperties: false
   }) : isSchema(schema) ? schema : zodSchema(schema);
 }
-var { btoa, atob: atob$1 } = globalThis;
+var { btoa: btoa$1, atob: atob$1 } = globalThis;
 function convertBase64ToUint8Array(base64String) {
   const base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/");
   const latin1string = atob$1(base64Url);
   return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
 }
-function convertUint8ArrayToBase64(array2) {
+function convertUint8ArrayToBase64$1(array2) {
   let latin1string = "";
   for (let i = 0; i < array2.length; i++) {
     latin1string += String.fromCodePoint(array2[i]);
   }
-  return btoa(latin1string);
+  return btoa$1(latin1string);
 }
-function convertToBase64(value) {
-  return value instanceof Uint8Array ? convertUint8ArrayToBase64(value) : value;
-}
-function withoutTrailingSlash(url) {
+function withoutTrailingSlash$1(url) {
   return url == null ? void 0 : url.replace(/\/$/, "");
 }
 function isAsyncIterable(obj) {
@@ -6727,17 +6563,17 @@ async function* executeTool({
     yield { type: "final", output: await result };
   }
 }
-var marker$1 = "vercel.ai.gateway.error";
-var symbol$1 = Symbol.for(marker$1);
-var _a$1, _b;
-var GatewayError = class _GatewayError extends (_b = Error, _a$1 = symbol$1, _b) {
+var marker$2 = "vercel.ai.gateway.error";
+var symbol$2 = Symbol.for(marker$2);
+var _a$2, _b;
+var GatewayError = class _GatewayError extends (_b = Error, _a$2 = symbol$2, _b) {
   constructor({
     message,
     statusCode = 500,
     cause
   }) {
     super(message);
-    this[_a$1] = true;
+    this[_a$2] = true;
     this.statusCode = statusCode;
     this.cause = cause;
   }
@@ -6750,26 +6586,26 @@ var GatewayError = class _GatewayError extends (_b = Error, _a$1 = symbol$1, _b)
     return _GatewayError.hasMarker(error);
   }
   static hasMarker(error) {
-    return typeof error === "object" && error !== null && symbol$1 in error && error[symbol$1] === true;
+    return typeof error === "object" && error !== null && symbol$2 in error && error[symbol$2] === true;
   }
 };
-var name$1 = "GatewayAuthenticationError";
-var marker2$1 = `vercel.ai.gateway.error.${name$1}`;
-var symbol2$1 = Symbol.for(marker2$1);
-var _a2$1, _b2;
-var GatewayAuthenticationError = class _GatewayAuthenticationError extends (_b2 = GatewayError, _a2$1 = symbol2$1, _b2) {
+var name$2 = "GatewayAuthenticationError";
+var marker2$2 = `vercel.ai.gateway.error.${name$2}`;
+var symbol2$2 = Symbol.for(marker2$2);
+var _a2$2, _b2;
+var GatewayAuthenticationError = class _GatewayAuthenticationError extends (_b2 = GatewayError, _a2$2 = symbol2$2, _b2) {
   constructor({
     message = "Authentication failed",
     statusCode = 401,
     cause
   } = {}) {
     super({ message, statusCode, cause });
-    this[_a2$1] = true;
-    this.name = name$1;
+    this[_a2$2] = true;
+    this.name = name$2;
     this.type = "authentication_error";
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol2$1 in error;
+    return GatewayError.hasMarker(error) && symbol2$2 in error;
   }
   /**
    * Creates a contextual error message when authentication fails
@@ -6820,52 +6656,52 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     });
   }
 };
-var name2$1 = "GatewayInvalidRequestError";
-var marker3 = `vercel.ai.gateway.error.${name2$1}`;
-var symbol3 = Symbol.for(marker3);
-var _a3, _b3;
-var GatewayInvalidRequestError = class extends (_b3 = GatewayError, _a3 = symbol3, _b3) {
+var name2$2 = "GatewayInvalidRequestError";
+var marker3$1 = `vercel.ai.gateway.error.${name2$2}`;
+var symbol3$1 = Symbol.for(marker3$1);
+var _a3$1, _b3;
+var GatewayInvalidRequestError = class extends (_b3 = GatewayError, _a3$1 = symbol3$1, _b3) {
   constructor({
     message = "Invalid request",
     statusCode = 400,
     cause
   } = {}) {
     super({ message, statusCode, cause });
-    this[_a3] = true;
-    this.name = name2$1;
+    this[_a3$1] = true;
+    this.name = name2$2;
     this.type = "invalid_request_error";
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol3 in error;
+    return GatewayError.hasMarker(error) && symbol3$1 in error;
   }
 };
-var name3 = "GatewayRateLimitError";
-var marker4$1 = `vercel.ai.gateway.error.${name3}`;
-var symbol4$1 = Symbol.for(marker4$1);
-var _a4$1, _b4;
-var GatewayRateLimitError = class extends (_b4 = GatewayError, _a4$1 = symbol4$1, _b4) {
+var name3$1 = "GatewayRateLimitError";
+var marker4$2 = `vercel.ai.gateway.error.${name3$1}`;
+var symbol4$2 = Symbol.for(marker4$2);
+var _a4$2, _b4;
+var GatewayRateLimitError = class extends (_b4 = GatewayError, _a4$2 = symbol4$2, _b4) {
   constructor({
     message = "Rate limit exceeded",
     statusCode = 429,
     cause
   } = {}) {
     super({ message, statusCode, cause });
-    this[_a4$1] = true;
-    this.name = name3;
+    this[_a4$2] = true;
+    this.name = name3$1;
     this.type = "rate_limit_exceeded";
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol4$1 in error;
+    return GatewayError.hasMarker(error) && symbol4$2 in error;
   }
 };
-var name4$1 = "GatewayModelNotFoundError";
-var marker5 = `vercel.ai.gateway.error.${name4$1}`;
-var symbol5 = Symbol.for(marker5);
+var name4$2 = "GatewayModelNotFoundError";
+var marker5$1 = `vercel.ai.gateway.error.${name4$2}`;
+var symbol5$1 = Symbol.for(marker5$1);
 var modelNotFoundParamSchema = object$1({
   modelId: string()
 });
-var _a5, _b5;
-var GatewayModelNotFoundError = class extends (_b5 = GatewayError, _a5 = symbol5, _b5) {
+var _a5$1, _b5;
+var GatewayModelNotFoundError = class extends (_b5 = GatewayError, _a5$1 = symbol5$1, _b5) {
   constructor({
     message = "Model not found",
     statusCode = 404,
@@ -6873,39 +6709,39 @@ var GatewayModelNotFoundError = class extends (_b5 = GatewayError, _a5 = symbol5
     cause
   } = {}) {
     super({ message, statusCode, cause });
-    this[_a5] = true;
-    this.name = name4$1;
+    this[_a5$1] = true;
+    this.name = name4$2;
     this.type = "model_not_found";
     this.modelId = modelId;
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol5 in error;
+    return GatewayError.hasMarker(error) && symbol5$1 in error;
   }
 };
-var name5 = "GatewayInternalServerError";
-var marker6 = `vercel.ai.gateway.error.${name5}`;
-var symbol6 = Symbol.for(marker6);
-var _a6, _b6;
-var GatewayInternalServerError = class extends (_b6 = GatewayError, _a6 = symbol6, _b6) {
+var name5$1 = "GatewayInternalServerError";
+var marker6$1 = `vercel.ai.gateway.error.${name5$1}`;
+var symbol6$1 = Symbol.for(marker6$1);
+var _a6$1, _b6;
+var GatewayInternalServerError = class extends (_b6 = GatewayError, _a6$1 = symbol6$1, _b6) {
   constructor({
     message = "Internal server error",
     statusCode = 500,
     cause
   } = {}) {
     super({ message, statusCode, cause });
-    this[_a6] = true;
-    this.name = name5;
+    this[_a6$1] = true;
+    this.name = name5$1;
     this.type = "internal_server_error";
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol6 in error;
+    return GatewayError.hasMarker(error) && symbol6$1 in error;
   }
 };
-var name6 = "GatewayResponseError";
-var marker7$1 = `vercel.ai.gateway.error.${name6}`;
-var symbol7$1 = Symbol.for(marker7$1);
-var _a7$1, _b7;
-var GatewayResponseError = class extends (_b7 = GatewayError, _a7$1 = symbol7$1, _b7) {
+var name6$1 = "GatewayResponseError";
+var marker7$2 = `vercel.ai.gateway.error.${name6$1}`;
+var symbol7$2 = Symbol.for(marker7$2);
+var _a7$2, _b7;
+var GatewayResponseError = class extends (_b7 = GatewayError, _a7$2 = symbol7$2, _b7) {
   constructor({
     message = "Invalid response from Gateway",
     statusCode = 502,
@@ -6914,14 +6750,14 @@ var GatewayResponseError = class extends (_b7 = GatewayError, _a7$1 = symbol7$1,
     cause
   } = {}) {
     super({ message, statusCode, cause });
-    this[_a7$1] = true;
-    this.name = name6;
+    this[_a7$2] = true;
+    this.name = name6$1;
     this.type = "response_error";
     this.response = response;
     this.validationError = validationError;
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol7$1 in error;
+    return GatewayError.hasMarker(error) && symbol7$2 in error;
   }
 };
 function createGatewayErrorFromResponse({
@@ -6986,7 +6822,7 @@ function asGatewayError(error, authMethod) {
   if (GatewayError.isInstance(error)) {
     return error;
   }
-  if (APICallError.isInstance(error)) {
+  if (APICallError$1.isInstance(error)) {
     return createGatewayErrorFromResponse({
       response: extractApiCallResponse(error),
       statusCode: (_a82 = error.statusCode) != null ? _a82 : 500,
@@ -7036,10 +6872,10 @@ var GatewayFetchMetadata = class {
       const { value } = await getFromApi({
         url: `${this.config.baseURL}/config`,
         headers: await resolve(this.config.headers()),
-        successfulResponseHandler: createJsonResponseHandler(
+        successfulResponseHandler: createJsonResponseHandler$1(
           gatewayFetchMetadataSchema
         ),
-        failedResponseHandler: createJsonErrorResponseHandler({
+        failedResponseHandler: createJsonErrorResponseHandler$1({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -7097,17 +6933,17 @@ var GatewayLanguageModel = class {
         responseHeaders,
         value: responseBody,
         rawValue: rawResponse
-      } = await postJsonToApi({
+      } = await postJsonToApi$1({
         url: this.getUrl(),
-        headers: combineHeaders(
+        headers: combineHeaders$1(
           resolvedHeaders,
           options.headers,
           this.getModelConfigHeaders(this.modelId, false),
           await resolve(this.config.o11yHeaders)
         ),
         body: args,
-        successfulResponseHandler: createJsonResponseHandler(any()),
-        failedResponseHandler: createJsonErrorResponseHandler({
+        successfulResponseHandler: createJsonResponseHandler$1(any()),
+        failedResponseHandler: createJsonErrorResponseHandler$1({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -7129,17 +6965,17 @@ var GatewayLanguageModel = class {
     const { abortSignal } = options;
     const resolvedHeaders = await resolve(this.config.headers());
     try {
-      const { value: response, responseHeaders } = await postJsonToApi({
+      const { value: response, responseHeaders } = await postJsonToApi$1({
         url: this.getUrl(),
-        headers: combineHeaders(
+        headers: combineHeaders$1(
           resolvedHeaders,
           options.headers,
           this.getModelConfigHeaders(this.modelId, true),
           await resolve(this.config.o11yHeaders)
         ),
         body: args,
-        successfulResponseHandler: createEventSourceResponseHandler(any()),
-        failedResponseHandler: createJsonErrorResponseHandler({
+        successfulResponseHandler: createEventSourceResponseHandler$1(any()),
+        failedResponseHandler: createJsonErrorResponseHandler$1({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -7240,9 +7076,9 @@ var GatewayEmbeddingModel = class {
         responseHeaders,
         value: responseBody,
         rawValue
-      } = await postJsonToApi({
+      } = await postJsonToApi$1({
         url: this.getUrl(),
-        headers: combineHeaders(
+        headers: combineHeaders$1(
           resolvedHeaders,
           headers != null ? headers : {},
           this.getModelConfigHeaders(),
@@ -7252,10 +7088,10 @@ var GatewayEmbeddingModel = class {
           input: values.length === 1 ? values[0] : values,
           ...providerOptions != null ? providerOptions : {}
         },
-        successfulResponseHandler: createJsonResponseHandler(
+        successfulResponseHandler: createJsonResponseHandler$1(
           gatewayEmbeddingResponseSchema
         ),
-        failedResponseHandler: createJsonErrorResponseHandler({
+        failedResponseHandler: createJsonErrorResponseHandler$1({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -7315,7 +7151,7 @@ function createGatewayProvider(options = {}) {
   let metadataCache = null;
   const cacheRefreshMillis = (_a82 = options.metadataCacheRefreshMillis) != null ? _a82 : 1e3 * 60 * 5;
   let lastFetchTime = 0;
-  const baseURL = (_b8 = withoutTrailingSlash(options.baseURL)) != null ? _b8 : "https://ai-gateway.vercel.sh/v1/ai";
+  const baseURL = (_b8 = withoutTrailingSlash$1(options.baseURL)) != null ? _b8 : "https://ai-gateway.vercel.sh/v1/ai";
   const getHeaders = async () => {
     const auth = await getGatewayAuthToken(options);
     if (auth) {
@@ -8133,75 +7969,75 @@ var TraceAPI = (
   })()
 );
 var trace = TraceAPI.getInstance();
-var __defProp = Object.defineProperty;
+var __defProp$1 = Object.defineProperty;
 var __export = (target, all) => {
   for (var name17 in all)
-    __defProp(target, name17, { get: all[name17], enumerable: true });
+    __defProp$1(target, name17, { get: all[name17], enumerable: true });
 };
-var name = "AI_NoOutputSpecifiedError";
-var marker = `vercel.ai.error.${name}`;
-var symbol = Symbol.for(marker);
-var _a;
-var NoOutputSpecifiedError = class extends AISDKError {
+var name$1 = "AI_NoOutputSpecifiedError";
+var marker$1 = `vercel.ai.error.${name$1}`;
+var symbol$1 = Symbol.for(marker$1);
+var _a$1;
+var NoOutputSpecifiedError = class extends AISDKError$1 {
   // used in isInstance
   constructor({ message = "No output specified." } = {}) {
-    super({ name, message });
-    this[_a] = true;
+    super({ name: name$1, message });
+    this[_a$1] = true;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker);
+    return AISDKError$1.hasMarker(error, marker$1);
   }
 };
-_a = symbol;
-var name2 = "AI_InvalidArgumentError";
-var marker2 = `vercel.ai.error.${name2}`;
-var symbol2 = Symbol.for(marker2);
-var _a2;
-var InvalidArgumentError2 = class extends AISDKError {
+_a$1 = symbol$1;
+var name2$1 = "AI_InvalidArgumentError";
+var marker2$1 = `vercel.ai.error.${name2$1}`;
+var symbol2$1 = Symbol.for(marker2$1);
+var _a2$1;
+var InvalidArgumentError$1 = class InvalidArgumentError2 extends AISDKError$1 {
   constructor({
     parameter,
     value,
     message
   }) {
     super({
-      name: name2,
+      name: name2$1,
       message: `Invalid argument for parameter ${parameter}: ${message}`
     });
-    this[_a2] = true;
+    this[_a2$1] = true;
     this.parameter = parameter;
     this.value = value;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker2);
+    return AISDKError$1.hasMarker(error, marker2$1);
   }
 };
-_a2 = symbol2;
-var name4 = "AI_InvalidToolInputError";
-var marker4 = `vercel.ai.error.${name4}`;
-var symbol4 = Symbol.for(marker4);
-var _a4;
-var InvalidToolInputError = class extends AISDKError {
+_a2$1 = symbol2$1;
+var name4$1 = "AI_InvalidToolInputError";
+var marker4$1 = `vercel.ai.error.${name4$1}`;
+var symbol4$1 = Symbol.for(marker4$1);
+var _a4$1;
+var InvalidToolInputError = class extends AISDKError$1 {
   constructor({
     toolInput,
     toolName,
     cause,
-    message = `Invalid input for tool ${toolName}: ${getErrorMessage$1(cause)}`
+    message = `Invalid input for tool ${toolName}: ${getErrorMessage$2(cause)}`
   }) {
-    super({ name: name4, message, cause });
-    this[_a4] = true;
+    super({ name: name4$1, message, cause });
+    this[_a4$1] = true;
     this.toolInput = toolInput;
     this.toolName = toolName;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker4);
+    return AISDKError$1.hasMarker(error, marker4$1);
   }
 };
-_a4 = symbol4;
-var name7 = "AI_NoObjectGeneratedError";
-var marker7 = `vercel.ai.error.${name7}`;
-var symbol7 = Symbol.for(marker7);
-var _a7;
-var NoObjectGeneratedError = class extends AISDKError {
+_a4$1 = symbol4$1;
+var name7$1 = "AI_NoObjectGeneratedError";
+var marker7$1 = `vercel.ai.error.${name7$1}`;
+var symbol7$1 = Symbol.for(marker7$1);
+var _a7$1;
+var NoObjectGeneratedError = class extends AISDKError$1 {
   constructor({
     message = "No object generated.",
     cause,
@@ -8210,23 +8046,23 @@ var NoObjectGeneratedError = class extends AISDKError {
     usage,
     finishReason
   }) {
-    super({ name: name7, message, cause });
-    this[_a7] = true;
+    super({ name: name7$1, message, cause });
+    this[_a7$1] = true;
     this.text = text2;
     this.response = response;
     this.usage = usage;
     this.finishReason = finishReason;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker7);
+    return AISDKError$1.hasMarker(error, marker7$1);
   }
 };
-_a7 = symbol7;
+_a7$1 = symbol7$1;
 var name9 = "AI_NoSuchToolError";
 var marker9 = `vercel.ai.error.${name9}`;
 var symbol9 = Symbol.for(marker9);
 var _a9;
-var NoSuchToolError = class extends AISDKError {
+var NoSuchToolError = class extends AISDKError$1 {
   constructor({
     toolName,
     availableTools = void 0,
@@ -8238,7 +8074,7 @@ var NoSuchToolError = class extends AISDKError {
     this.availableTools = availableTools;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker9);
+    return AISDKError$1.hasMarker(error, marker9);
   }
 };
 _a9 = symbol9;
@@ -8246,22 +8082,22 @@ var name10 = "AI_ToolCallRepairError";
 var marker10 = `vercel.ai.error.${name10}`;
 var symbol10 = Symbol.for(marker10);
 var _a10;
-var ToolCallRepairError = class extends AISDKError {
+var ToolCallRepairError = class extends AISDKError$1 {
   constructor({
     cause,
     originalError,
-    message = `Error repairing tool call: ${getErrorMessage$1(cause)}`
+    message = `Error repairing tool call: ${getErrorMessage$2(cause)}`
   }) {
     super({ name: name10, message, cause });
     this[_a10] = true;
     this.originalError = originalError;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker10);
+    return AISDKError$1.hasMarker(error, marker10);
   }
 };
 _a10 = symbol10;
-var UnsupportedModelVersionError = class extends AISDKError {
+var UnsupportedModelVersionError = class extends AISDKError$1 {
   constructor(options) {
     super({
       name: "AI_UnsupportedModelVersionError",
@@ -8272,29 +8108,29 @@ var UnsupportedModelVersionError = class extends AISDKError {
     this.modelId = options.modelId;
   }
 };
-var name12 = "AI_InvalidMessageRoleError";
-var marker12 = `vercel.ai.error.${name12}`;
+var name12$1 = "AI_InvalidMessageRoleError";
+var marker12 = `vercel.ai.error.${name12$1}`;
 var symbol12 = Symbol.for(marker12);
 var _a12;
-var InvalidMessageRoleError = class extends AISDKError {
+var InvalidMessageRoleError = class extends AISDKError$1 {
   constructor({
     role,
     message = `Invalid message role: '${role}'. Must be one of: "system", "user", "assistant", "tool".`
   }) {
-    super({ name: name12, message });
+    super({ name: name12$1, message });
     this[_a12] = true;
     this.role = role;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker12);
+    return AISDKError$1.hasMarker(error, marker12);
   }
 };
 _a12 = symbol12;
 var name14 = "AI_DownloadError";
-var marker14 = `vercel.ai.error.${name14}`;
-var symbol14 = Symbol.for(marker14);
-var _a14;
-var DownloadError = class extends AISDKError {
+var marker14$1 = `vercel.ai.error.${name14}`;
+var symbol14$1 = Symbol.for(marker14$1);
+var _a14$1;
+var DownloadError = class extends AISDKError$1 {
   constructor({
     url,
     statusCode,
@@ -8303,21 +8139,21 @@ var DownloadError = class extends AISDKError {
     message = cause == null ? `Failed to download ${url}: ${statusCode} ${statusText}` : `Failed to download ${url}: ${cause}`
   }) {
     super({ name: name14, message, cause });
-    this[_a14] = true;
+    this[_a14$1] = true;
     this.url = url;
     this.statusCode = statusCode;
     this.statusText = statusText;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker14);
+    return AISDKError$1.hasMarker(error, marker14$1);
   }
 };
-_a14 = symbol14;
+_a14$1 = symbol14$1;
 var name15 = "AI_RetryError";
 var marker15 = `vercel.ai.error.${name15}`;
 var symbol15 = Symbol.for(marker15);
 var _a15;
-var RetryError = class extends AISDKError {
+var RetryError = class extends AISDKError$1 {
   constructor({
     message,
     reason,
@@ -8330,7 +8166,7 @@ var RetryError = class extends AISDKError {
     this.lastError = errors[errors.length - 1];
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker15);
+    return AISDKError$1.hasMarker(error, marker15);
   }
 };
 _a15 = symbol15;
@@ -8517,7 +8353,7 @@ function convertToLanguageModelV2DataContent(content) {
       content.toString()
     );
     if (dataUrlMediaType == null || base64Content == null) {
-      throw new AISDKError({
+      throw new AISDKError$1({
         name: "InvalidDataContentError",
         message: `Invalid data URL format in content ${content.toString()}`
       });
@@ -8531,9 +8367,9 @@ function convertDataContentToBase64String(content) {
     return content;
   }
   if (content instanceof ArrayBuffer) {
-    return convertUint8ArrayToBase64(new Uint8Array(content));
+    return convertUint8ArrayToBase64$1(new Uint8Array(content));
   }
-  return convertUint8ArrayToBase64(content);
+  return convertUint8ArrayToBase64$1(content);
 }
 async function convertToLanguageModelPrompt({
   prompt,
@@ -8768,14 +8604,14 @@ function prepareCallSettings({
 }) {
   if (maxOutputTokens != null) {
     if (!Number.isInteger(maxOutputTokens)) {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "maxOutputTokens",
         value: maxOutputTokens,
         message: "maxOutputTokens must be an integer"
       });
     }
     if (maxOutputTokens < 1) {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "maxOutputTokens",
         value: maxOutputTokens,
         message: "maxOutputTokens must be >= 1"
@@ -8784,7 +8620,7 @@ function prepareCallSettings({
   }
   if (temperature != null) {
     if (typeof temperature !== "number") {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "temperature",
         value: temperature,
         message: "temperature must be a number"
@@ -8793,7 +8629,7 @@ function prepareCallSettings({
   }
   if (topP != null) {
     if (typeof topP !== "number") {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "topP",
         value: topP,
         message: "topP must be a number"
@@ -8802,7 +8638,7 @@ function prepareCallSettings({
   }
   if (topK != null) {
     if (typeof topK !== "number") {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "topK",
         value: topK,
         message: "topK must be a number"
@@ -8811,7 +8647,7 @@ function prepareCallSettings({
   }
   if (presencePenalty != null) {
     if (typeof presencePenalty !== "number") {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "presencePenalty",
         value: presencePenalty,
         message: "presencePenalty must be a number"
@@ -8820,7 +8656,7 @@ function prepareCallSettings({
   }
   if (frequencyPenalty != null) {
     if (typeof frequencyPenalty !== "number") {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "frequencyPenalty",
         value: frequencyPenalty,
         message: "frequencyPenalty must be a number"
@@ -8829,7 +8665,7 @@ function prepareCallSettings({
   }
   if (seed != null) {
     if (!Number.isInteger(seed)) {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "seed",
         value: seed,
         message: "seed must be an integer"
@@ -9024,19 +8860,19 @@ var modelMessageSchema = union([
 ]);
 async function standardizePrompt(prompt) {
   if (prompt.prompt == null && prompt.messages == null) {
-    throw new InvalidPromptError({
+    throw new InvalidPromptError$1({
       prompt,
       message: "prompt or messages must be defined"
     });
   }
   if (prompt.prompt != null && prompt.messages != null) {
-    throw new InvalidPromptError({
+    throw new InvalidPromptError$1({
       prompt,
       message: "prompt and messages cannot be defined at the same time"
     });
   }
   if (prompt.system != null && typeof prompt.system !== "string") {
-    throw new InvalidPromptError({
+    throw new InvalidPromptError$1({
       prompt,
       message: "system must be a string"
     });
@@ -9049,23 +8885,23 @@ async function standardizePrompt(prompt) {
   } else if (prompt.messages != null) {
     messages = prompt.messages;
   } else {
-    throw new InvalidPromptError({
+    throw new InvalidPromptError$1({
       prompt,
       message: "prompt or messages must be defined"
     });
   }
   if (messages.length === 0) {
-    throw new InvalidPromptError({
+    throw new InvalidPromptError$1({
       prompt,
       message: "messages must not be empty"
     });
   }
-  const validationResult = await safeValidateTypes({
+  const validationResult = await safeValidateTypes$1({
     value: messages,
     schema: array(modelMessageSchema)
   });
   if (!validationResult.success) {
-    throw new InvalidPromptError({
+    throw new InvalidPromptError$1({
       prompt,
       message: "The messages must be a ModelMessage[]. If you have passed a UIMessage[], you can use convertToModelMessages to convert them.",
       cause: validationResult.error
@@ -9078,7 +8914,7 @@ async function standardizePrompt(prompt) {
 }
 function wrapGatewayError(error) {
   if (GatewayAuthenticationError.isInstance(error) || GatewayModelNotFoundError.isInstance(error)) {
-    return new AISDKError({
+    return new AISDKError$1({
       name: "GatewayError",
       message: "Vercel AI Gateway access failed. If you want to use AI SDK providers directly, use the providers, e.g. @ai-sdk/openai, or register a different global default provider.",
       cause: error
@@ -9349,13 +9185,13 @@ async function _retryWithExponentialBackoff(f, {
   try {
     return await f();
   } catch (error) {
-    if (isAbortError(error)) {
+    if (isAbortError$1(error)) {
       throw error;
     }
     if (maxRetries === 0) {
       throw error;
     }
-    const errorMessage = getErrorMessage(error);
+    const errorMessage = getErrorMessage$1(error);
     const newErrors = [...errors, error];
     const tryNumber = newErrors.length;
     if (tryNumber > maxRetries) {
@@ -9365,7 +9201,7 @@ async function _retryWithExponentialBackoff(f, {
         errors: newErrors
       });
     }
-    if (error instanceof Error && APICallError.isInstance(error) && error.isRetryable === true && tryNumber <= maxRetries) {
+    if (error instanceof Error && APICallError$1.isInstance(error) && error.isRetryable === true && tryNumber <= maxRetries) {
       await delay(
         getRetryDelayInMs({
           error,
@@ -9400,14 +9236,14 @@ function prepareRetries({
 }) {
   if (maxRetries != null) {
     if (!Number.isInteger(maxRetries)) {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "maxRetries",
         value: maxRetries,
         message: "maxRetries must be an integer"
       });
     }
     if (maxRetries < 0) {
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError$1({
         parameter: "maxRetries",
         value: maxRetries,
         message: "maxRetries must be >= 0"
@@ -9445,7 +9281,7 @@ var DefaultGeneratedFile = class {
   // lazy conversion with caching to avoid unnecessary conversion overhead:
   get base64() {
     if (this.base64Data == null) {
-      this.base64Data = convertUint8ArrayToBase64(this.uint8ArrayData);
+      this.base64Data = convertUint8ArrayToBase64$1(this.uint8ArrayData);
     }
     return this.base64Data;
   }
@@ -9499,7 +9335,7 @@ async function parseToolCall({
       return await doParseToolCall({ toolCall: repairedToolCall, tools });
     }
   } catch (error) {
-    const parsedInput = await safeParseJSON({ text: toolCall.input });
+    const parsedInput = await safeParseJSON$1({ text: toolCall.input });
     const input = parsedInput.success ? parsedInput.value : toolCall.input;
     return {
       type: "tool-call",
@@ -9525,7 +9361,7 @@ async function doParseToolCall({
     });
   }
   const schema = asSchema(tool3.inputSchema);
-  const parseResult = toolCall.input.trim() === "" ? await safeValidateTypes({ value: {}, schema }) : await safeParseJSON({ text: toolCall.input, schema });
+  const parseResult = toolCall.input.trim() === "" ? await safeValidateTypes$1({ value: {}, schema }) : await safeParseJSON$1({ text: toolCall.input, schema });
   if (parseResult.success === false) {
     throw new InvalidToolInputError({
       toolName,
@@ -9625,7 +9461,7 @@ function createToolModelOutput({
   errorMode
 }) {
   if (errorMode === "text") {
-    return { type: "error-text", value: getErrorMessage$1(output) };
+    return { type: "error-text", value: getErrorMessage$2(output) };
   } else if (errorMode === "json") {
     return { type: "error-json", value: toJSONValue(output) };
   }
@@ -9725,7 +9561,7 @@ function toResponseMessages({
   }
   return responseMessages;
 }
-var originalGenerateId = createIdGenerator({
+var originalGenerateId = createIdGenerator$1({
   prefix: "aitxt",
   size: 24
 });
@@ -9964,7 +9800,7 @@ async function generateText({
               toolCallId: toolCall.toolCallId,
               toolName: toolCall.toolName,
               input: toolCall.input,
-              error: getErrorMessage(toolCall.error),
+              error: getErrorMessage$1(toolCall.error),
               dynamic: true
             });
           }
@@ -10776,22 +10612,22 @@ async function parsePartialJson(jsonText) {
   if (jsonText === void 0) {
     return { value: void 0, state: "undefined-input" };
   }
-  let result = await safeParseJSON({ text: jsonText });
+  let result = await safeParseJSON$1({ text: jsonText });
   if (result.success) {
     return { value: result.value, state: "successful-parse" };
   }
-  result = await safeParseJSON({ text: fixJson(jsonText) });
+  result = await safeParseJSON$1({ text: fixJson(jsonText) });
   if (result.success) {
     return { value: result.value, state: "repaired-parse" };
   }
   return { value: void 0, state: "failed-parse" };
 }
-createIdGenerator({
+createIdGenerator$1({
   prefix: "aitxt",
   size: 24
 });
-createIdGenerator({ prefix: "aiobj", size: 24 });
-createIdGenerator({ prefix: "aiobj", size: 24 });
+createIdGenerator$1({ prefix: "aiobj", size: 24 });
+createIdGenerator$1({ prefix: "aiobj", size: 24 });
 var output_exports = {};
 __export(output_exports, {
   object: () => object,
@@ -10836,7 +10672,7 @@ var object = ({
       }
     },
     async parseOutput({ text: text2 }, context) {
-      const parseResult = await safeParseJSON({ text: text2 });
+      const parseResult = await safeParseJSON$1({ text: text2 });
       if (!parseResult.success) {
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -10847,7 +10683,7 @@ var object = ({
           finishReason: context.finishReason
         });
       }
-      const validationResult = await safeValidateTypes({
+      const validationResult = await safeValidateTypes$1({
         value: parseResult.value,
         schema
       });
@@ -11129,1407 +10965,2260 @@ object$1({
     ])
   )
 });
-var googleErrorDataSchema = object$1({
-  error: object$1({
-    code: number().nullable(),
-    message: string(),
-    status: string()
-  })
-});
-var googleFailedResponseHandler = createJsonErrorResponseHandler({
-  errorSchema: googleErrorDataSchema,
-  errorToMessage: (data) => data.error.message
-});
-var googleGenerativeAIEmbeddingProviderOptions = object$1({
+var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var marker = "vercel.ai.error";
+var symbol = Symbol.for(marker);
+var _a;
+var _AISDKError2 = class _AISDKError22 extends Error {
   /**
-   * Optional. Optional reduced dimension for the output embedding.
-   * If set, excessive values in the output embedding are truncated from the end.
+   * Creates an AI SDK Error.
+   *
+   * @param {Object} params - The parameters for creating the error.
+   * @param {string} params.name - The name of the error.
+   * @param {string} params.message - The error message.
+   * @param {unknown} [params.cause] - The underlying cause of the error.
    */
-  outputDimensionality: number().optional(),
-  /**
-   * Optional. Specifies the task type for generating embeddings.
-   * Supported task types:
-   * - SEMANTIC_SIMILARITY: Optimized for text similarity.
-   * - CLASSIFICATION: Optimized for text classification.
-   * - CLUSTERING: Optimized for clustering texts based on similarity.
-   * - RETRIEVAL_DOCUMENT: Optimized for document retrieval.
-   * - RETRIEVAL_QUERY: Optimized for query-based retrieval.
-   * - QUESTION_ANSWERING: Optimized for answering questions.
-   * - FACT_VERIFICATION: Optimized for verifying factual information.
-   * - CODE_RETRIEVAL_QUERY: Optimized for retrieving code blocks based on natural language queries.
-   */
-  taskType: _enum([
-    "SEMANTIC_SIMILARITY",
-    "CLASSIFICATION",
-    "CLUSTERING",
-    "RETRIEVAL_DOCUMENT",
-    "RETRIEVAL_QUERY",
-    "QUESTION_ANSWERING",
-    "FACT_VERIFICATION",
-    "CODE_RETRIEVAL_QUERY"
-  ]).optional()
-});
-var GoogleGenerativeAIEmbeddingModel = class {
-  constructor(modelId, config2) {
-    this.specificationVersion = "v2";
-    this.maxEmbeddingsPerCall = 2048;
-    this.supportsParallelCalls = true;
-    this.modelId = modelId;
-    this.config = config2;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async doEmbed({
-    values,
-    headers,
-    abortSignal,
-    providerOptions
+  constructor({
+    name: name142,
+    message,
+    cause
   }) {
-    const googleOptions = await parseProviderOptions({
-      provider: "google",
-      providerOptions,
-      schema: googleGenerativeAIEmbeddingProviderOptions
+    super(message);
+    this[_a] = true;
+    this.name = name142;
+    this.cause = cause;
+  }
+  /**
+   * Checks if the given error is an AI SDK Error.
+   * @param {unknown} error - The error to check.
+   * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+   */
+  static isInstance(error) {
+    return _AISDKError22.hasMarker(error, marker);
+  }
+  static hasMarker(error, marker152) {
+    const markerSymbol = Symbol.for(marker152);
+    return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+  }
+};
+_a = symbol;
+var AISDKError = _AISDKError2;
+var name = "AI_APICallError";
+var marker2 = `vercel.ai.error.${name}`;
+var symbol2 = Symbol.for(marker2);
+var _a2;
+var APICallError2 = class extends AISDKError {
+  constructor({
+    message,
+    url,
+    requestBodyValues,
+    statusCode,
+    responseHeaders,
+    responseBody,
+    cause,
+    isRetryable = statusCode != null && (statusCode === 408 || // request timeout
+    statusCode === 409 || // conflict
+    statusCode === 429 || // too many requests
+    statusCode >= 500),
+    // server error
+    data
+  }) {
+    super({ name, message, cause });
+    this[_a2] = true;
+    this.url = url;
+    this.requestBodyValues = requestBodyValues;
+    this.statusCode = statusCode;
+    this.responseHeaders = responseHeaders;
+    this.responseBody = responseBody;
+    this.isRetryable = isRetryable;
+    this.data = data;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker2);
+  }
+};
+_a2 = symbol2;
+var name2 = "AI_EmptyResponseBodyError";
+var marker3 = `vercel.ai.error.${name2}`;
+var symbol3 = Symbol.for(marker3);
+var _a3;
+var EmptyResponseBodyError2 = class extends AISDKError {
+  // used in isInstance
+  constructor({ message = "Empty response body" } = {}) {
+    super({ name: name2, message });
+    this[_a3] = true;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker3);
+  }
+};
+_a3 = symbol3;
+function getErrorMessage(error) {
+  if (error == null) {
+    return "unknown error";
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return JSON.stringify(error);
+}
+var name3 = "AI_InvalidArgumentError";
+var marker4 = `vercel.ai.error.${name3}`;
+var symbol4 = Symbol.for(marker4);
+var _a4;
+var InvalidArgumentError3 = class extends AISDKError {
+  constructor({
+    message,
+    cause,
+    argument
+  }) {
+    super({ name: name3, message, cause });
+    this[_a4] = true;
+    this.argument = argument;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker4);
+  }
+};
+_a4 = symbol4;
+var name4 = "AI_InvalidPromptError";
+var marker5 = `vercel.ai.error.${name4}`;
+var symbol5 = Symbol.for(marker5);
+var _a5;
+var InvalidPromptError2 = class extends AISDKError {
+  constructor({
+    prompt,
+    message,
+    cause
+  }) {
+    super({ name: name4, message: `Invalid prompt: ${message}`, cause });
+    this[_a5] = true;
+    this.prompt = prompt;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker5);
+  }
+};
+_a5 = symbol5;
+var name5 = "AI_InvalidResponseDataError";
+var marker6 = `vercel.ai.error.${name5}`;
+var symbol6 = Symbol.for(marker6);
+var _a6;
+var InvalidResponseDataError = class extends AISDKError {
+  constructor({
+    data,
+    message = `Invalid response data: ${JSON.stringify(data)}.`
+  }) {
+    super({ name: name5, message });
+    this[_a6] = true;
+    this.data = data;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker6);
+  }
+};
+_a6 = symbol6;
+var name6 = "AI_JSONParseError";
+var marker7 = `vercel.ai.error.${name6}`;
+var symbol7 = Symbol.for(marker7);
+var _a7;
+var JSONParseError2 = class extends AISDKError {
+  constructor({ text: text2, cause }) {
+    super({
+      name: name6,
+      message: `JSON parsing failed: Text: ${text2}.
+Error message: ${getErrorMessage(cause)}`,
+      cause
     });
-    if (values.length > this.maxEmbeddingsPerCall) {
-      throw new TooManyEmbeddingValuesForCallError({
-        provider: this.provider,
-        modelId: this.modelId,
-        maxEmbeddingsPerCall: this.maxEmbeddingsPerCall,
-        values
-      });
-    }
-    const mergedHeaders = combineHeaders(
-      await resolve(this.config.headers),
-      headers
+    this[_a7] = true;
+    this.text = text2;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker7);
+  }
+};
+_a7 = symbol7;
+var name7 = "AI_LoadAPIKeyError";
+var marker8 = `vercel.ai.error.${name7}`;
+var symbol8 = Symbol.for(marker8);
+var _a8;
+var LoadAPIKeyError = class extends AISDKError {
+  // used in isInstance
+  constructor({ message }) {
+    super({ name: name7, message });
+    this[_a8] = true;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker8);
+  }
+};
+_a8 = symbol8;
+var name12 = "AI_TypeValidationError";
+var marker13 = `vercel.ai.error.${name12}`;
+var symbol13 = Symbol.for(marker13);
+var _a13;
+var _TypeValidationError2 = class _TypeValidationError22 extends AISDKError {
+  constructor({ value, cause }) {
+    super({
+      name: name12,
+      message: `Type validation failed: Value: ${JSON.stringify(value)}.
+Error message: ${getErrorMessage(cause)}`,
+      cause
+    });
+    this[_a13] = true;
+    this.value = value;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker13);
+  }
+  /**
+   * Wraps an error into a TypeValidationError.
+   * If the cause is already a TypeValidationError with the same value, it returns the cause.
+   * Otherwise, it creates a new TypeValidationError.
+   *
+   * @param {Object} params - The parameters for wrapping the error.
+   * @param {unknown} params.value - The value that failed validation.
+   * @param {unknown} params.cause - The original error or cause of the validation failure.
+   * @returns {TypeValidationError} A TypeValidationError instance.
+   */
+  static wrap({
+    value,
+    cause
+  }) {
+    return _TypeValidationError22.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError22({ value, cause });
+  }
+};
+_a13 = symbol13;
+var TypeValidationError = _TypeValidationError2;
+var name13 = "AI_UnsupportedFunctionalityError";
+var marker14 = `vercel.ai.error.${name13}`;
+var symbol14 = Symbol.for(marker14);
+var _a14;
+var UnsupportedFunctionalityError = class extends AISDKError {
+  constructor({
+    functionality,
+    message = `'${functionality}' functionality not supported.`
+  }) {
+    super({ name: name13, message });
+    this[_a14] = true;
+    this.functionality = functionality;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker14);
+  }
+};
+_a14 = symbol14;
+var ParseError2 = class extends Error {
+  constructor(message, options) {
+    super(message), this.name = "ParseError", this.type = options.type, this.field = options.field, this.value = options.value, this.line = options.line;
+  }
+};
+function noop(_arg) {
+}
+function createParser(callbacks) {
+  if (typeof callbacks == "function")
+    throw new TypeError(
+      "`callbacks` must be an object, got a function instead. Did you mean `{onEvent: fn}`?"
     );
-    if (values.length === 1) {
-      const {
-        responseHeaders: responseHeaders2,
-        value: response2,
-        rawValue: rawValue2
-      } = await postJsonToApi({
-        url: `${this.config.baseURL}/models/${this.modelId}:embedContent`,
-        headers: mergedHeaders,
-        body: {
-          model: `models/${this.modelId}`,
-          content: {
-            parts: [{ text: values[0] }]
-          },
-          outputDimensionality: googleOptions == null ? void 0 : googleOptions.outputDimensionality,
-          taskType: googleOptions == null ? void 0 : googleOptions.taskType
-        },
-        failedResponseHandler: googleFailedResponseHandler,
-        successfulResponseHandler: createJsonResponseHandler(
-          googleGenerativeAISingleEmbeddingResponseSchema
-        ),
-        abortSignal,
-        fetch: this.config.fetch
-      });
-      return {
-        embeddings: [response2.embedding.values],
-        usage: void 0,
-        response: { headers: responseHeaders2, body: rawValue2 }
-      };
+  const { onEvent = noop, onError = noop, onRetry = noop, onComment } = callbacks;
+  let incompleteLine = "", isFirstChunk = true, id, data = "", eventType = "";
+  function feed(newChunk) {
+    const chunk = isFirstChunk ? newChunk.replace(/^\xEF\xBB\xBF/, "") : newChunk, [complete, incomplete] = splitLines(`${incompleteLine}${chunk}`);
+    for (const line of complete)
+      parseLine(line);
+    incompleteLine = incomplete, isFirstChunk = false;
+  }
+  function parseLine(line) {
+    if (line === "") {
+      dispatchEvent();
+      return;
     }
-    const {
-      responseHeaders,
-      value: response,
-      rawValue
-    } = await postJsonToApi({
-      url: `${this.config.baseURL}/models/${this.modelId}:batchEmbedContents`,
-      headers: mergedHeaders,
-      body: {
-        requests: values.map((value) => ({
-          model: `models/${this.modelId}`,
-          content: { role: "user", parts: [{ text: value }] },
-          outputDimensionality: googleOptions == null ? void 0 : googleOptions.outputDimensionality,
-          taskType: googleOptions == null ? void 0 : googleOptions.taskType
-        }))
+    if (line.startsWith(":")) {
+      onComment && onComment(line.slice(line.startsWith(": ") ? 2 : 1));
+      return;
+    }
+    const fieldSeparatorIndex = line.indexOf(":");
+    if (fieldSeparatorIndex !== -1) {
+      const field = line.slice(0, fieldSeparatorIndex), offset = line[fieldSeparatorIndex + 1] === " " ? 2 : 1, value = line.slice(fieldSeparatorIndex + offset);
+      processField(field, value, line);
+      return;
+    }
+    processField(line, "", line);
+  }
+  function processField(field, value, line) {
+    switch (field) {
+      case "event":
+        eventType = value;
+        break;
+      case "data":
+        data = `${data}${value}
+`;
+        break;
+      case "id":
+        id = value.includes("\0") ? void 0 : value;
+        break;
+      case "retry":
+        /^\d+$/.test(value) ? onRetry(parseInt(value, 10)) : onError(
+          new ParseError2(`Invalid \`retry\` value: "${value}"`, {
+            type: "invalid-retry",
+            value,
+            line
+          })
+        );
+        break;
+      default:
+        onError(
+          new ParseError2(
+            `Unknown field "${field.length > 20 ? `${field.slice(0, 20)}…` : field}"`,
+            { type: "unknown-field", field, value, line }
+          )
+        );
+        break;
+    }
+  }
+  function dispatchEvent() {
+    data.length > 0 && onEvent({
+      id,
+      event: eventType || void 0,
+      // If the data buffer's last character is a U+000A LINE FEED (LF) character,
+      // then remove the last character from the data buffer.
+      data: data.endsWith(`
+`) ? data.slice(0, -1) : data
+    }), id = void 0, data = "", eventType = "";
+  }
+  function reset(options = {}) {
+    incompleteLine && options.consume && parseLine(incompleteLine), isFirstChunk = true, id = void 0, data = "", eventType = "", incompleteLine = "";
+  }
+  return { feed, reset };
+}
+function splitLines(chunk) {
+  const lines = [];
+  let incompleteLine = "", searchIndex = 0;
+  for (; searchIndex < chunk.length; ) {
+    const crIndex = chunk.indexOf("\r", searchIndex), lfIndex = chunk.indexOf(`
+`, searchIndex);
+    let lineEnd = -1;
+    if (crIndex !== -1 && lfIndex !== -1 ? lineEnd = Math.min(crIndex, lfIndex) : crIndex !== -1 ? lineEnd = crIndex : lfIndex !== -1 && (lineEnd = lfIndex), lineEnd === -1) {
+      incompleteLine = chunk.slice(searchIndex);
+      break;
+    } else {
+      const line = chunk.slice(searchIndex, lineEnd);
+      lines.push(line), searchIndex = lineEnd + 1, chunk[searchIndex - 1] === "\r" && chunk[searchIndex] === `
+` && searchIndex++;
+    }
+  }
+  return [lines, incompleteLine];
+}
+var EventSourceParserStream2 = class extends TransformStream {
+  constructor({ onError, onRetry, onComment } = {}) {
+    let parser;
+    super({
+      start(controller) {
+        parser = createParser({
+          onEvent: (event) => {
+            controller.enqueue(event);
+          },
+          onError(error) {
+            onError === "terminate" ? controller.error(error) : typeof onError == "function" && onError(error);
+          },
+          onRetry,
+          onComment
+        });
       },
-      failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(
-        googleGenerativeAITextEmbeddingResponseSchema
-      ),
-      abortSignal,
-      fetch: this.config.fetch
+      transform(chunk) {
+        parser.feed(chunk);
+      }
+    });
+  }
+};
+new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
+function combineHeaders(...headers) {
+  return headers.reduce(
+    (combinedHeaders, currentHeaders) => __spreadValues(__spreadValues({}, combinedHeaders), currentHeaders != null ? currentHeaders : {}),
+    {}
+  );
+}
+function extractResponseHeaders(response) {
+  return Object.fromEntries([...response.headers]);
+}
+var createIdGenerator = ({
+  prefix,
+  size = 16,
+  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  separator = "-"
+} = {}) => {
+  const generator = () => {
+    const alphabetLength = alphabet.length;
+    const chars = new Array(size);
+    for (let i = 0; i < size; i++) {
+      chars[i] = alphabet[Math.random() * alphabetLength | 0];
+    }
+    return chars.join("");
+  };
+  if (prefix == null) {
+    return generator;
+  }
+  if (alphabet.includes(separator)) {
+    throw new InvalidArgumentError3({
+      argument: "separator",
+      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
+    });
+  }
+  return () => `${prefix}${separator}${generator()}`;
+};
+var generateId = createIdGenerator();
+function isAbortError(error) {
+  return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
+  error.name === "TimeoutError");
+}
+var FETCH_FAILED_ERROR_MESSAGES = ["fetch failed", "failed to fetch"];
+function handleFetchError({
+  error,
+  url,
+  requestBodyValues
+}) {
+  if (isAbortError(error)) {
+    return error;
+  }
+  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES.includes(error.message.toLowerCase())) {
+    const cause = error.cause;
+    if (cause != null) {
+      return new APICallError2({
+        message: `Cannot connect to API: ${cause.message}`,
+        cause,
+        url,
+        requestBodyValues,
+        isRetryable: true
+        // retry when network error
+      });
+    }
+  }
+  return error;
+}
+function removeUndefinedEntries(record2) {
+  return Object.fromEntries(
+    Object.entries(record2).filter(([_key, value]) => value != null)
+  );
+}
+function loadApiKey({
+  apiKey,
+  environmentVariableName,
+  apiKeyParameterName = "apiKey",
+  description
+}) {
+  if (typeof apiKey === "string") {
+    return apiKey;
+  }
+  if (apiKey != null) {
+    throw new LoadAPIKeyError({
+      message: `${description} API key must be a string.`
+    });
+  }
+  if (typeof process === "undefined") {
+    throw new LoadAPIKeyError({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables is not supported in this environment.`
+    });
+  }
+  apiKey = process.env[environmentVariableName];
+  if (apiKey == null) {
+    throw new LoadAPIKeyError({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
+    });
+  }
+  if (typeof apiKey !== "string") {
+    throw new LoadAPIKeyError({
+      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
+    });
+  }
+  return apiKey;
+}
+var suspectProtoRx = /"__proto__"\s*:/;
+var suspectConstructorRx = /"constructor"\s*:/;
+function _parse(text2) {
+  const obj = JSON.parse(text2);
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+  if (suspectProtoRx.test(text2) === false && suspectConstructorRx.test(text2) === false) {
+    return obj;
+  }
+  return filter(obj);
+}
+function filter(obj) {
+  let next = [obj];
+  while (next.length) {
+    const nodes = next;
+    next = [];
+    for (const node of nodes) {
+      if (Object.prototype.hasOwnProperty.call(node, "__proto__")) {
+        throw new SyntaxError("Object contains forbidden prototype property");
+      }
+      if (Object.prototype.hasOwnProperty.call(node, "constructor") && Object.prototype.hasOwnProperty.call(node.constructor, "prototype")) {
+        throw new SyntaxError("Object contains forbidden prototype property");
+      }
+      for (const key in node) {
+        const value = node[key];
+        if (value && typeof value === "object") {
+          next.push(value);
+        }
+      }
+    }
+  }
+  return obj;
+}
+function secureJsonParse(text2) {
+  const { stackTraceLimit } = Error;
+  Error.stackTraceLimit = 0;
+  try {
+    return _parse(text2);
+  } finally {
+    Error.stackTraceLimit = stackTraceLimit;
+  }
+}
+var validatorSymbol = Symbol.for("vercel.ai.validator");
+function validator(validate) {
+  return { [validatorSymbol]: true, validate };
+}
+function isValidator(value) {
+  return typeof value === "object" && value !== null && validatorSymbol in value && value[validatorSymbol] === true && "validate" in value;
+}
+function asValidator(value) {
+  return isValidator(value) ? value : standardSchemaValidator(value);
+}
+function standardSchemaValidator(standardSchema) {
+  return validator(async (value) => {
+    const result = await standardSchema["~standard"].validate(value);
+    return result.issues == null ? { success: true, value: result.value } : {
+      success: false,
+      error: new TypeValidationError({
+        value,
+        cause: result.issues
+      })
+    };
+  });
+}
+async function validateTypes({
+  value,
+  schema
+}) {
+  const result = await safeValidateTypes({ value, schema });
+  if (!result.success) {
+    throw TypeValidationError.wrap({ value, cause: result.error });
+  }
+  return result.value;
+}
+async function safeValidateTypes({
+  value,
+  schema
+}) {
+  const validator2 = asValidator(schema);
+  try {
+    if (validator2.validate == null) {
+      return { success: true, value, rawValue: value };
+    }
+    const result = await validator2.validate(value);
+    if (result.success) {
+      return { success: true, value: result.value, rawValue: value };
+    }
+    return {
+      success: false,
+      error: TypeValidationError.wrap({ value, cause: result.error }),
+      rawValue: value
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: TypeValidationError.wrap({ value, cause: error }),
+      rawValue: value
+    };
+  }
+}
+async function parseJSON({
+  text: text2,
+  schema
+}) {
+  try {
+    const value = secureJsonParse(text2);
+    if (schema == null) {
+      return value;
+    }
+    return validateTypes({ value, schema });
+  } catch (error) {
+    if (JSONParseError2.isInstance(error) || TypeValidationError.isInstance(error)) {
+      throw error;
+    }
+    throw new JSONParseError2({ text: text2, cause: error });
+  }
+}
+async function safeParseJSON({
+  text: text2,
+  schema
+}) {
+  try {
+    const value = secureJsonParse(text2);
+    if (schema == null) {
+      return { success: true, value, rawValue: value };
+    }
+    return await safeValidateTypes({ value, schema });
+  } catch (error) {
+    return {
+      success: false,
+      error: JSONParseError2.isInstance(error) ? error : new JSONParseError2({ text: text2, cause: error }),
+      rawValue: void 0
+    };
+  }
+}
+function isParsableJson(input) {
+  try {
+    secureJsonParse(input);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+function parseJsonEventStream({
+  stream,
+  schema
+}) {
+  return stream.pipeThrough(new TextDecoderStream()).pipeThrough(new EventSourceParserStream2()).pipeThrough(
+    new TransformStream({
+      async transform({ data }, controller) {
+        if (data === "[DONE]") {
+          return;
+        }
+        controller.enqueue(await safeParseJSON({ text: data, schema }));
+      }
+    })
+  );
+}
+var getOriginalFetch2 = () => globalThis.fetch;
+var postJsonToApi = async ({
+  url,
+  headers,
+  body,
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}) => postToApi({
+  url,
+  headers: __spreadValues({
+    "Content-Type": "application/json"
+  }, headers),
+  body: {
+    content: JSON.stringify(body),
+    values: body
+  },
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+});
+var postToApi = async ({
+  url,
+  headers = {},
+  body,
+  successfulResponseHandler,
+  failedResponseHandler,
+  abortSignal,
+  fetch: fetch2 = getOriginalFetch2()
+}) => {
+  try {
+    const response = await fetch2(url, {
+      method: "POST",
+      headers: removeUndefinedEntries(headers),
+      body: body.content,
+      signal: abortSignal
+    });
+    const responseHeaders = extractResponseHeaders(response);
+    if (!response.ok) {
+      let errorInformation;
+      try {
+        errorInformation = await failedResponseHandler({
+          response,
+          url,
+          requestBodyValues: body.values
+        });
+      } catch (error) {
+        if (isAbortError(error) || APICallError2.isInstance(error)) {
+          throw error;
+        }
+        throw new APICallError2({
+          message: "Failed to process error response",
+          cause: error,
+          statusCode: response.status,
+          url,
+          responseHeaders,
+          requestBodyValues: body.values
+        });
+      }
+      throw errorInformation.value;
+    }
+    try {
+      return await successfulResponseHandler({
+        response,
+        url,
+        requestBodyValues: body.values
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        if (isAbortError(error) || APICallError2.isInstance(error)) {
+          throw error;
+        }
+      }
+      throw new APICallError2({
+        message: "Failed to process successful response",
+        cause: error,
+        statusCode: response.status,
+        url,
+        responseHeaders,
+        requestBodyValues: body.values
+      });
+    }
+  } catch (error) {
+    throw handleFetchError({ error, url, requestBodyValues: body.values });
+  }
+};
+var createJsonErrorResponseHandler = ({
+  errorSchema,
+  errorToMessage,
+  isRetryable
+}) => async ({ response, url, requestBodyValues }) => {
+  const responseBody = await response.text();
+  const responseHeaders = extractResponseHeaders(response);
+  if (responseBody.trim() === "") {
+    return {
+      responseHeaders,
+      value: new APICallError2({
+        message: response.statusText,
+        url,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
+      })
+    };
+  }
+  try {
+    const parsedError = await parseJSON({
+      text: responseBody,
+      schema: errorSchema
     });
     return {
-      embeddings: response.embeddings.map((item) => item.values),
-      usage: void 0,
-      response: { headers: responseHeaders, body: rawValue }
+      responseHeaders,
+      value: new APICallError2({
+        message: errorToMessage(parsedError),
+        url,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        data: parsedError,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
+      })
+    };
+  } catch (parseError) {
+    return {
+      responseHeaders,
+      value: new APICallError2({
+        message: response.statusText,
+        url,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
+      })
     };
   }
 };
-var googleGenerativeAITextEmbeddingResponseSchema = object$1({
-  embeddings: array(object$1({ values: array(number()) }))
-});
-var googleGenerativeAISingleEmbeddingResponseSchema = object$1({
-  embedding: object$1({ values: array(number()) })
-});
-function convertJSONSchemaToOpenAPISchema(jsonSchema2) {
-  if (jsonSchema2 == null || isEmptyObjectSchema(jsonSchema2)) {
-    return void 0;
-  }
-  if (typeof jsonSchema2 === "boolean") {
-    return { type: "boolean", properties: {} };
-  }
-  const {
-    type,
-    description,
-    required: required2,
-    properties,
-    items,
-    allOf,
-    anyOf,
-    oneOf,
-    format,
-    const: constValue,
-    minLength,
-    enum: enumValues
-  } = jsonSchema2;
-  const result = {};
-  if (description)
-    result.description = description;
-  if (required2)
-    result.required = required2;
-  if (format)
-    result.format = format;
-  if (constValue !== void 0) {
-    result.enum = [constValue];
-  }
-  if (type) {
-    if (Array.isArray(type)) {
-      if (type.includes("null")) {
-        result.type = type.filter((t) => t !== "null")[0];
-        result.nullable = true;
-      } else {
-        result.type = type;
-      }
-    } else if (type === "null") {
-      result.type = "null";
-    } else {
-      result.type = type;
-    }
-  }
-  if (enumValues !== void 0) {
-    result.enum = enumValues;
-  }
-  if (properties != null) {
-    result.properties = Object.entries(properties).reduce(
-      (acc, [key, value]) => {
-        acc[key] = convertJSONSchemaToOpenAPISchema(value);
-        return acc;
-      },
-      {}
-    );
-  }
-  if (items) {
-    result.items = Array.isArray(items) ? items.map(convertJSONSchemaToOpenAPISchema) : convertJSONSchemaToOpenAPISchema(items);
-  }
-  if (allOf) {
-    result.allOf = allOf.map(convertJSONSchemaToOpenAPISchema);
-  }
-  if (anyOf) {
-    if (anyOf.some(
-      (schema) => typeof schema === "object" && (schema == null ? void 0 : schema.type) === "null"
-    )) {
-      const nonNullSchemas = anyOf.filter(
-        (schema) => !(typeof schema === "object" && (schema == null ? void 0 : schema.type) === "null")
-      );
-      if (nonNullSchemas.length === 1) {
-        const converted = convertJSONSchemaToOpenAPISchema(nonNullSchemas[0]);
-        if (typeof converted === "object") {
-          result.nullable = true;
-          Object.assign(result, converted);
-        }
-      } else {
-        result.anyOf = nonNullSchemas.map(convertJSONSchemaToOpenAPISchema);
-        result.nullable = true;
-      }
-    } else {
-      result.anyOf = anyOf.map(convertJSONSchemaToOpenAPISchema);
-    }
-  }
-  if (oneOf) {
-    result.oneOf = oneOf.map(convertJSONSchemaToOpenAPISchema);
-  }
-  if (minLength !== void 0) {
-    result.minLength = minLength;
-  }
-  return result;
-}
-function isEmptyObjectSchema(jsonSchema2) {
-  return jsonSchema2 != null && typeof jsonSchema2 === "object" && jsonSchema2.type === "object" && (jsonSchema2.properties == null || Object.keys(jsonSchema2.properties).length === 0) && !jsonSchema2.additionalProperties;
-}
-function convertToGoogleGenerativeAIMessages(prompt, options) {
-  var _a16;
-  const systemInstructionParts = [];
-  const contents = [];
-  let systemMessagesAllowed = true;
-  const isGemmaModel = (_a16 = options == null ? void 0 : options.isGemmaModel) != null ? _a16 : false;
-  for (const { role, content } of prompt) {
-    switch (role) {
-      case "system": {
-        if (!systemMessagesAllowed) {
-          throw new UnsupportedFunctionalityError({
-            functionality: "system messages are only supported at the beginning of the conversation"
-          });
-        }
-        systemInstructionParts.push({ text: content });
-        break;
-      }
-      case "user": {
-        systemMessagesAllowed = false;
-        const parts = [];
-        for (const part of content) {
-          switch (part.type) {
-            case "text": {
-              parts.push({ text: part.text });
-              break;
-            }
-            case "file": {
-              const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-              parts.push(
-                part.data instanceof URL ? {
-                  fileData: {
-                    mimeType: mediaType,
-                    fileUri: part.data.toString()
-                  }
-                } : {
-                  inlineData: {
-                    mimeType: mediaType,
-                    data: convertToBase64(part.data)
-                  }
-                }
-              );
-              break;
-            }
-          }
-        }
-        contents.push({ role: "user", parts });
-        break;
-      }
-      case "assistant": {
-        systemMessagesAllowed = false;
-        contents.push({
-          role: "model",
-          parts: content.map((part) => {
-            var _a22, _b8, _c, _d, _e, _f;
-            switch (part.type) {
-              case "text": {
-                return part.text.length === 0 ? void 0 : {
-                  text: part.text,
-                  thoughtSignature: (_b8 = (_a22 = part.providerOptions) == null ? void 0 : _a22.google) == null ? void 0 : _b8.thoughtSignature
-                };
-              }
-              case "reasoning": {
-                return part.text.length === 0 ? void 0 : {
-                  text: part.text,
-                  thought: true,
-                  thoughtSignature: (_d = (_c = part.providerOptions) == null ? void 0 : _c.google) == null ? void 0 : _d.thoughtSignature
-                };
-              }
-              case "file": {
-                if (part.mediaType !== "image/png") {
-                  throw new UnsupportedFunctionalityError({
-                    functionality: "Only PNG images are supported in assistant messages"
-                  });
-                }
-                if (part.data instanceof URL) {
-                  throw new UnsupportedFunctionalityError({
-                    functionality: "File data URLs in assistant messages are not supported"
-                  });
-                }
-                return {
-                  inlineData: {
-                    mimeType: part.mediaType,
-                    data: convertToBase64(part.data)
-                  }
-                };
-              }
-              case "tool-call": {
-                return {
-                  functionCall: {
-                    name: part.toolName,
-                    args: part.input
-                  },
-                  thoughtSignature: (_f = (_e = part.providerOptions) == null ? void 0 : _e.google) == null ? void 0 : _f.thoughtSignature
-                };
-              }
-            }
-          }).filter((part) => part !== void 0)
-        });
-        break;
-      }
-      case "tool": {
-        systemMessagesAllowed = false;
-        contents.push({
-          role: "user",
-          parts: content.map((part) => ({
-            functionResponse: {
-              name: part.toolName,
-              response: {
-                name: part.toolName,
-                content: part.output.value
-              }
-            }
-          }))
-        });
-        break;
-      }
-    }
-  }
-  if (isGemmaModel && systemInstructionParts.length > 0 && contents.length > 0 && contents[0].role === "user") {
-    const systemText = systemInstructionParts.map((part) => part.text).join("\n\n");
-    contents[0].parts.unshift({ text: systemText + "\n\n" });
+var createEventSourceResponseHandler = (chunkSchema) => async ({ response }) => {
+  const responseHeaders = extractResponseHeaders(response);
+  if (response.body == null) {
+    throw new EmptyResponseBodyError2({});
   }
   return {
-    systemInstruction: systemInstructionParts.length > 0 && !isGemmaModel ? { parts: systemInstructionParts } : void 0,
-    contents
-  };
-}
-function getModelPath(modelId) {
-  return modelId.includes("/") ? modelId : `models/${modelId}`;
-}
-var googleGenerativeAIProviderOptions = object$1({
-  responseModalities: array(_enum(["TEXT", "IMAGE"])).optional(),
-  thinkingConfig: object$1({
-    thinkingBudget: number().optional(),
-    includeThoughts: boolean().optional()
-  }).optional(),
-  /**
-  Optional.
-  The name of the cached content used as context to serve the prediction.
-  Format: cachedContents/{cachedContent}
-     */
-  cachedContent: string().optional(),
-  /**
-   * Optional. Enable structured output. Default is true.
-   *
-   * This is useful when the JSON Schema contains elements that are
-   * not supported by the OpenAPI schema version that
-   * Google Generative AI uses. You can use this to disable
-   * structured outputs if you need to.
-   */
-  structuredOutputs: boolean().optional(),
-  /**
-  Optional. A list of unique safety settings for blocking unsafe content.
-   */
-  safetySettings: array(
-    object$1({
-      category: _enum([
-        "HARM_CATEGORY_UNSPECIFIED",
-        "HARM_CATEGORY_HATE_SPEECH",
-        "HARM_CATEGORY_DANGEROUS_CONTENT",
-        "HARM_CATEGORY_HARASSMENT",
-        "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        "HARM_CATEGORY_CIVIC_INTEGRITY"
-      ]),
-      threshold: _enum([
-        "HARM_BLOCK_THRESHOLD_UNSPECIFIED",
-        "BLOCK_LOW_AND_ABOVE",
-        "BLOCK_MEDIUM_AND_ABOVE",
-        "BLOCK_ONLY_HIGH",
-        "BLOCK_NONE",
-        "OFF"
-      ])
+    responseHeaders,
+    value: parseJsonEventStream({
+      stream: response.body,
+      schema: chunkSchema
     })
-  ).optional(),
-  threshold: _enum([
-    "HARM_BLOCK_THRESHOLD_UNSPECIFIED",
-    "BLOCK_LOW_AND_ABOVE",
-    "BLOCK_MEDIUM_AND_ABOVE",
-    "BLOCK_ONLY_HIGH",
-    "BLOCK_NONE",
-    "OFF"
-  ]).optional(),
-  /**
-   * Optional. Enables timestamp understanding for audio-only files.
-   *
-   * https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/audio-understanding
-   */
-  audioTimestamp: boolean().optional(),
-  /**
-   * Optional. Defines labels used in billing reports. Available on Vertex AI only.
-   *
-   * https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/add-labels-to-api-calls
-   */
-  labels: record(string(), string()).optional()
-});
-function prepareTools({
-  tools,
-  toolChoice,
-  modelId
-}) {
-  var _a16;
-  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  const toolWarnings = [];
-  const isGemini2 = modelId.includes("gemini-2");
-  const supportsDynamicRetrieval = modelId.includes("gemini-1.5-flash") && !modelId.includes("-8b");
-  if (tools == null) {
-    return { tools: void 0, toolConfig: void 0, toolWarnings };
-  }
-  const hasFunctionTools = tools.some((tool2) => tool2.type === "function");
-  const hasProviderDefinedTools = tools.some(
-    (tool2) => tool2.type === "provider-defined"
-  );
-  if (hasFunctionTools && hasProviderDefinedTools) {
-    toolWarnings.push({
-      type: "unsupported-tool",
-      tool: tools.find((tool2) => tool2.type === "function"),
-      details: "Cannot mix function tools with provider-defined tools in the same request. Please use either function tools or provider-defined tools, but not both."
+  };
+};
+var createJsonResponseHandler = (responseSchema) => async ({ response, url, requestBodyValues }) => {
+  const responseBody = await response.text();
+  const parsedResult = await safeParseJSON({
+    text: responseBody,
+    schema: responseSchema
+  });
+  const responseHeaders = extractResponseHeaders(response);
+  if (!parsedResult.success) {
+    throw new APICallError2({
+      message: "Invalid JSON response",
+      cause: parsedResult.error,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody,
+      url,
+      requestBodyValues
     });
   }
-  if (hasProviderDefinedTools) {
-    const googleTools2 = {};
-    const providerDefinedTools = tools.filter(
-      (tool2) => tool2.type === "provider-defined"
-    );
-    providerDefinedTools.forEach((tool2) => {
-      switch (tool2.id) {
-        case "google.google_search":
-          if (isGemini2) {
-            googleTools2.googleSearch = {};
-          } else if (supportsDynamicRetrieval) {
-            googleTools2.googleSearchRetrieval = {
-              dynamicRetrievalConfig: {
-                mode: tool2.args.mode,
-                dynamicThreshold: tool2.args.dynamicThreshold
-              }
-            };
-          } else {
-            googleTools2.googleSearchRetrieval = {};
-          }
-          break;
-        case "google.url_context":
-          if (isGemini2) {
-            googleTools2.urlContext = {};
-          } else {
-            toolWarnings.push({
-              type: "unsupported-tool",
-              tool: tool2,
-              details: "The URL context tool is not supported with other Gemini models than Gemini 2."
-            });
-          }
-          break;
-        case "google.code_execution":
-          if (isGemini2) {
-            googleTools2.codeExecution = {};
-          } else {
-            toolWarnings.push({
-              type: "unsupported-tool",
-              tool: tool2,
-              details: "The code execution tools is not supported with other Gemini models than Gemini 2."
-            });
-          }
-          break;
-        default:
-          toolWarnings.push({ type: "unsupported-tool", tool: tool2 });
-          break;
-      }
-    });
-    return {
-      tools: Object.keys(googleTools2).length > 0 ? googleTools2 : void 0,
-      toolConfig: void 0,
-      toolWarnings
-    };
+  return {
+    responseHeaders,
+    value: parsedResult.value,
+    rawValue: parsedResult.rawValue
+  };
+};
+var { btoa } = globalThis;
+function convertUint8ArrayToBase64(array2) {
+  let latin1string = "";
+  for (let i = 0; i < array2.length; i++) {
+    latin1string += String.fromCodePoint(array2[i]);
   }
-  const functionDeclarations = [];
-  for (const tool2 of tools) {
-    switch (tool2.type) {
-      case "function":
-        functionDeclarations.push({
-          name: tool2.name,
-          description: (_a16 = tool2.description) != null ? _a16 : "",
-          parameters: convertJSONSchemaToOpenAPISchema(tool2.inputSchema)
-        });
-        break;
-      default:
-        toolWarnings.push({ type: "unsupported-tool", tool: tool2 });
-        break;
-    }
-  }
-  if (toolChoice == null) {
-    return {
-      tools: { functionDeclarations },
-      toolConfig: void 0,
-      toolWarnings
-    };
-  }
-  const type = toolChoice.type;
-  switch (type) {
-    case "auto":
-      return {
-        tools: { functionDeclarations },
-        toolConfig: { functionCallingConfig: { mode: "AUTO" } },
-        toolWarnings
-      };
-    case "none":
-      return {
-        tools: { functionDeclarations },
-        toolConfig: { functionCallingConfig: { mode: "NONE" } },
-        toolWarnings
-      };
-    case "required":
-      return {
-        tools: { functionDeclarations },
-        toolConfig: { functionCallingConfig: { mode: "ANY" } },
-        toolWarnings
-      };
-    case "tool":
-      return {
-        tools: { functionDeclarations },
-        toolConfig: {
-          functionCallingConfig: {
-            mode: "ANY",
-            allowedFunctionNames: [toolChoice.toolName]
-          }
-        },
-        toolWarnings
-      };
-    default: {
-      const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError({
-        functionality: `tool choice type: ${_exhaustiveCheck}`
-      });
-    }
-  }
+  return btoa(latin1string);
 }
-function mapGoogleGenerativeAIFinishReason({
-  finishReason,
-  hasToolCalls
-}) {
+function withoutTrailingSlash(url) {
+  return url == null ? void 0 : url.replace(/\/$/, "");
+}
+var ReasoningDetailSummarySchema = object$1({
+  type: literal(
+    "reasoning.summary"
+    /* Summary */
+  ),
+  summary: string()
+});
+var ReasoningDetailEncryptedSchema = object$1({
+  type: literal(
+    "reasoning.encrypted"
+    /* Encrypted */
+  ),
+  data: string()
+});
+var ReasoningDetailTextSchema = object$1({
+  type: literal(
+    "reasoning.text"
+    /* Text */
+  ),
+  text: string().nullish(),
+  signature: string().nullish()
+});
+var ReasoningDetailUnionSchema = union([
+  ReasoningDetailSummarySchema,
+  ReasoningDetailEncryptedSchema,
+  ReasoningDetailTextSchema
+]);
+var ReasoningDetailsWithUnknownSchema = union([
+  ReasoningDetailUnionSchema,
+  unknown().transform(() => null)
+]);
+var ReasoningDetailArraySchema = array(ReasoningDetailsWithUnknownSchema).transform((d) => d.filter((d2) => !!d2));
+var OpenRouterErrorResponseSchema = object$1({
+  error: object$1({
+    code: union([string(), number()]).nullable().optional().default(null),
+    message: string(),
+    type: string().nullable().optional().default(null),
+    param: any().nullable().optional().default(null)
+  })
+});
+var openrouterFailedResponseHandler = createJsonErrorResponseHandler({
+  errorSchema: OpenRouterErrorResponseSchema,
+  errorToMessage: (data) => data.error.message
+});
+function mapOpenRouterFinishReason(finishReason) {
   switch (finishReason) {
-    case "STOP":
-      return hasToolCalls ? "tool-calls" : "stop";
-    case "MAX_TOKENS":
+    case "stop":
+      return "stop";
+    case "length":
       return "length";
-    case "IMAGE_SAFETY":
-    case "RECITATION":
-    case "SAFETY":
-    case "BLOCKLIST":
-    case "PROHIBITED_CONTENT":
-    case "SPII":
+    case "content_filter":
       return "content-filter";
-    case "FINISH_REASON_UNSPECIFIED":
-    case "OTHER":
-      return "other";
-    case "MALFORMED_FUNCTION_CALL":
-      return "error";
+    case "function_call":
+    case "tool_calls":
+      return "tool-calls";
     default:
       return "unknown";
   }
 }
-var groundingChunkSchema = object$1({
-  web: object$1({ uri: string(), title: string() }).nullish(),
-  retrievedContext: object$1({ uri: string(), title: string() }).nullish()
-});
-var groundingMetadataSchema = object$1({
-  webSearchQueries: array(string()).nullish(),
-  retrievalQueries: array(string()).nullish(),
-  searchEntryPoint: object$1({ renderedContent: string() }).nullish(),
-  groundingChunks: array(groundingChunkSchema).nullish(),
-  groundingSupports: array(
-    object$1({
-      segment: object$1({
-        startIndex: number().nullish(),
-        endIndex: number().nullish(),
-        text: string().nullish()
-      }),
-      segment_text: string().nullish(),
-      groundingChunkIndices: array(number()).nullish(),
-      supportChunkIndices: array(number()).nullish(),
-      confidenceScores: array(number()).nullish(),
-      confidenceScore: array(number()).nullish()
+function isUrl({
+  url,
+  protocols
+}) {
+  try {
+    const urlObj = new URL(url);
+    return protocols.has(urlObj.protocol);
+  } catch (_) {
+    return false;
+  }
+}
+function getFileUrl({
+  part,
+  defaultMediaType
+}) {
+  var _a152, _b8;
+  if (part.data instanceof Uint8Array) {
+    const base642 = convertUint8ArrayToBase64(part.data);
+    return `data:${(_a152 = part.mediaType) != null ? _a152 : defaultMediaType};base64,${base642}`;
+  }
+  const stringUrl = part.data.toString();
+  if (isUrl({
+    url: stringUrl,
+    protocols: /* @__PURE__ */ new Set(["http:", "https:"])
+  })) {
+    return stringUrl;
+  }
+  return stringUrl.startsWith("data:") ? stringUrl : `data:${(_b8 = part.mediaType) != null ? _b8 : defaultMediaType};base64,${stringUrl}`;
+}
+function getMediaType(dataUrl, defaultMediaType) {
+  var _a152;
+  const match = dataUrl.match(/^data:([^;]+)/);
+  return match ? (_a152 = match[1]) != null ? _a152 : defaultMediaType : defaultMediaType;
+}
+function getBase64FromDataUrl(dataUrl) {
+  const match = dataUrl.match(/^data:[^;]*;base64,(.+)$/);
+  return match ? match[1] : dataUrl;
+}
+function getCacheControl(providerMetadata) {
+  var _a152, _b8, _c;
+  const anthropic = providerMetadata == null ? void 0 : providerMetadata.anthropic;
+  const openrouter2 = providerMetadata == null ? void 0 : providerMetadata.openrouter;
+  return (_c = (_b8 = (_a152 = openrouter2 == null ? void 0 : openrouter2.cacheControl) != null ? _a152 : openrouter2 == null ? void 0 : openrouter2.cache_control) != null ? _b8 : anthropic == null ? void 0 : anthropic.cacheControl) != null ? _c : anthropic == null ? void 0 : anthropic.cache_control;
+}
+function convertToOpenRouterChatMessages(prompt) {
+  var _a152, _b8, _c;
+  const messages = [];
+  for (const { role, content, providerOptions } of prompt) {
+    switch (role) {
+      case "system": {
+        messages.push({
+          role: "system",
+          content,
+          cache_control: getCacheControl(providerOptions)
+        });
+        break;
+      }
+      case "user": {
+        if (content.length === 1 && ((_a152 = content[0]) == null ? void 0 : _a152.type) === "text") {
+          const cacheControl = (_b8 = getCacheControl(providerOptions)) != null ? _b8 : getCacheControl(content[0].providerOptions);
+          const contentWithCacheControl = cacheControl ? [
+            {
+              type: "text",
+              text: content[0].text,
+              cache_control: cacheControl
+            }
+          ] : content[0].text;
+          messages.push({
+            role: "user",
+            content: contentWithCacheControl
+          });
+          break;
+        }
+        const messageCacheControl = getCacheControl(providerOptions);
+        const contentParts = content.map(
+          (part) => {
+            var _a16, _b22, _c2, _d, _e, _f;
+            const cacheControl = (_a16 = getCacheControl(part.providerOptions)) != null ? _a16 : messageCacheControl;
+            switch (part.type) {
+              case "text":
+                return {
+                  type: "text",
+                  text: part.text,
+                  // For text parts, only use part-specific cache control
+                  cache_control: cacheControl
+                };
+              case "file": {
+                if ((_b22 = part.mediaType) == null ? void 0 : _b22.startsWith("image/")) {
+                  const url = getFileUrl({
+                    part,
+                    defaultMediaType: "image/jpeg"
+                  });
+                  return {
+                    type: "image_url",
+                    image_url: {
+                      url
+                    },
+                    // For image parts, use part-specific or message-level cache control
+                    cache_control: cacheControl
+                  };
+                }
+                const fileName = String(
+                  (_f = (_e = (_d = (_c2 = part.providerOptions) == null ? void 0 : _c2.openrouter) == null ? void 0 : _d.filename) != null ? _e : part.filename) != null ? _f : ""
+                );
+                const fileData = getFileUrl({
+                  part,
+                  defaultMediaType: "application/pdf"
+                });
+                if (isUrl({
+                  url: fileData,
+                  protocols: /* @__PURE__ */ new Set(["http:", "https:"])
+                })) {
+                  return {
+                    type: "file",
+                    file: {
+                      filename: fileName,
+                      file_data: fileData
+                    }
+                  };
+                }
+                return {
+                  type: "file",
+                  file: {
+                    filename: fileName,
+                    file_data: fileData
+                  },
+                  cache_control: cacheControl
+                };
+              }
+              default: {
+                return {
+                  type: "text",
+                  text: "",
+                  cache_control: cacheControl
+                };
+              }
+            }
+          }
+        );
+        messages.push({
+          role: "user",
+          content: contentParts
+        });
+        break;
+      }
+      case "assistant": {
+        let text2 = "";
+        let reasoning = "";
+        const reasoningDetails = [];
+        const toolCalls = [];
+        for (const part of content) {
+          switch (part.type) {
+            case "text": {
+              text2 += part.text;
+              break;
+            }
+            case "tool-call": {
+              toolCalls.push({
+                id: part.toolCallId,
+                type: "function",
+                function: {
+                  name: part.toolName,
+                  arguments: JSON.stringify(part.input)
+                }
+              });
+              break;
+            }
+            case "reasoning": {
+              reasoning += part.text;
+              reasoningDetails.push({
+                type: "reasoning.text",
+                text: part.text
+              });
+              break;
+            }
+          }
+        }
+        messages.push({
+          role: "assistant",
+          content: text2,
+          tool_calls: toolCalls.length > 0 ? toolCalls : void 0,
+          reasoning: reasoning || void 0,
+          reasoning_details: reasoningDetails.length > 0 ? reasoningDetails : void 0,
+          cache_control: getCacheControl(providerOptions)
+        });
+        break;
+      }
+      case "tool": {
+        for (const toolResponse of content) {
+          const content2 = getToolResultContent(toolResponse);
+          messages.push({
+            role: "tool",
+            tool_call_id: toolResponse.toolCallId,
+            content: content2,
+            cache_control: (_c = getCacheControl(providerOptions)) != null ? _c : getCacheControl(toolResponse.providerOptions)
+          });
+        }
+        break;
+      }
+    }
+  }
+  return messages;
+}
+function getToolResultContent(input) {
+  return input.output.type === "text" ? input.output.value : JSON.stringify(input.output.value);
+}
+union([
+  literal("auto"),
+  literal("none"),
+  literal("required"),
+  object$1({
+    type: literal("function"),
+    function: object$1({
+      name: string()
     })
-  ).nullish(),
-  retrievalMetadata: union([
-    object$1({
-      webDynamicRetrievalScore: number()
-    }),
-    object$1({})
-  ]).nullish()
-});
-var googleSearch = createProviderDefinedToolFactory({
-  id: "google.google_search",
-  name: "google_search",
-  inputSchema: object$1({
-    mode: _enum(["MODE_DYNAMIC", "MODE_UNSPECIFIED"]).default("MODE_UNSPECIFIED"),
-    dynamicThreshold: number().default(1)
+  })
+]);
+function getChatCompletionToolChoice(toolChoice) {
+  switch (toolChoice.type) {
+    case "auto":
+    case "none":
+    case "required":
+      return toolChoice.type;
+    case "tool": {
+      return {
+        type: "function",
+        function: { name: toolChoice.toolName }
+      };
+    }
+    default: {
+      throw new Error(`Invalid tool choice type: ${toolChoice}`);
+    }
+  }
+}
+var ImageResponseSchema = object$1({
+  type: literal("image_url"),
+  image_url: object$1({
+    url: string()
   })
 });
-var urlMetadataSchema = object$1({
-  retrievedUrl: string(),
-  urlRetrievalStatus: string()
+var ImageResponseWithUnknownSchema = union([
+  ImageResponseSchema,
+  unknown().transform(() => null)
+]);
+var ImageResponseArraySchema = array(ImageResponseWithUnknownSchema).transform((d) => d.filter((d2) => !!d2));
+var OpenRouterChatCompletionBaseResponseSchema = object$1({
+  id: string().optional(),
+  model: string().optional(),
+  provider: string().optional(),
+  usage: object$1({
+    prompt_tokens: number(),
+    prompt_tokens_details: object$1({
+      cached_tokens: number()
+    }).nullish(),
+    completion_tokens: number(),
+    completion_tokens_details: object$1({
+      reasoning_tokens: number()
+    }).nullish(),
+    total_tokens: number(),
+    cost: number().optional(),
+    cost_details: object$1({
+      upstream_inference_cost: number().nullish()
+    }).nullish()
+  }).nullish()
 });
-var urlContextMetadataSchema = object$1({
-  urlMetadata: array(urlMetadataSchema)
+var OpenRouterNonStreamChatCompletionResponseSchema = OpenRouterChatCompletionBaseResponseSchema.extend({
+  choices: array(
+    object$1({
+      message: object$1({
+        role: literal("assistant"),
+        content: string().nullable().optional(),
+        reasoning: string().nullable().optional(),
+        reasoning_details: ReasoningDetailArraySchema.nullish(),
+        images: ImageResponseArraySchema.nullish(),
+        tool_calls: array(
+          object$1({
+            id: string().optional().nullable(),
+            type: literal("function"),
+            function: object$1({
+              name: string(),
+              arguments: string()
+            })
+          })
+        ).optional(),
+        annotations: array(
+          object$1({
+            type: _enum(["url_citation"]),
+            url_citation: object$1({
+              end_index: number(),
+              start_index: number(),
+              title: string(),
+              url: string(),
+              content: string().optional()
+            })
+          })
+        ).nullish()
+      }),
+      index: number().nullish(),
+      logprobs: object$1({
+        content: array(
+          object$1({
+            token: string(),
+            logprob: number(),
+            top_logprobs: array(
+              object$1({
+                token: string(),
+                logprob: number()
+              })
+            )
+          })
+        ).nullable()
+      }).nullable().optional(),
+      finish_reason: string().optional().nullable()
+    })
+  )
 });
-var urlContext = createProviderDefinedToolFactory({
-  id: "google.url_context",
-  name: "url_context",
-  inputSchema: object$1({})
-});
-var GoogleGenerativeAILanguageModel = class {
-  constructor(modelId, config2) {
+var OpenRouterStreamChatCompletionChunkSchema = union([
+  OpenRouterChatCompletionBaseResponseSchema.extend({
+    choices: array(
+      object$1({
+        delta: object$1({
+          role: _enum(["assistant"]).optional(),
+          content: string().nullish(),
+          reasoning: string().nullish().optional(),
+          reasoning_details: ReasoningDetailArraySchema.nullish(),
+          images: ImageResponseArraySchema.nullish(),
+          tool_calls: array(
+            object$1({
+              index: number().nullish(),
+              id: string().nullish(),
+              type: literal("function").optional(),
+              function: object$1({
+                name: string().nullish(),
+                arguments: string().nullish()
+              })
+            })
+          ).nullish(),
+          annotations: array(
+            object$1({
+              type: _enum(["url_citation"]),
+              url_citation: object$1({
+                end_index: number(),
+                start_index: number(),
+                title: string(),
+                url: string(),
+                content: string().optional()
+              })
+            })
+          ).nullish()
+        }).nullish(),
+        logprobs: object$1({
+          content: array(
+            object$1({
+              token: string(),
+              logprob: number(),
+              top_logprobs: array(
+                object$1({
+                  token: string(),
+                  logprob: number()
+                })
+              )
+            })
+          ).nullable()
+        }).nullish(),
+        finish_reason: string().nullable().optional(),
+        index: number().nullish()
+      })
+    )
+  }),
+  OpenRouterErrorResponseSchema
+]);
+var OpenRouterChatLanguageModel = class {
+  constructor(modelId, settings, config2) {
     this.specificationVersion = "v2";
-    var _a16;
+    this.provider = "openrouter";
+    this.defaultObjectGenerationMode = "tool";
+    this.supportedUrls = {
+      "image/*": [
+        /^data:image\/[a-zA-Z]+;base64,/,
+        /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i
+      ],
+      // 'text/*': [/^data:text\//, /^https?:\/\/.+$/],
+      "application/*": [/^data:application\//, /^https?:\/\/.+$/]
+    };
     this.modelId = modelId;
+    this.settings = settings;
     this.config = config2;
-    this.generateId = (_a16 = config2.generateId) != null ? _a16 : generateId;
   }
-  get provider() {
-    return this.config.provider;
-  }
-  get supportedUrls() {
-    var _a16, _b8, _c;
-    return (_c = (_b8 = (_a16 = this.config).supportedUrls) == null ? void 0 : _b8.call(_a16)) != null ? _c : {};
-  }
-  async getArgs({
+  getArgs({
     prompt,
     maxOutputTokens,
     temperature,
     topP,
-    topK,
     frequencyPenalty,
     presencePenalty,
+    seed,
     stopSequences,
     responseFormat,
-    seed,
+    topK,
     tools,
-    toolChoice,
-    providerOptions
+    toolChoice
   }) {
-    var _a16, _b8;
-    const warnings = [];
-    const googleOptions = await parseProviderOptions({
-      provider: "google",
-      providerOptions,
-      schema: googleGenerativeAIProviderOptions
-    });
-    if (((_a16 = googleOptions == null ? void 0 : googleOptions.thinkingConfig) == null ? void 0 : _a16.includeThoughts) === true && !this.config.provider.startsWith("google.vertex.")) {
-      warnings.push({
-        type: "other",
-        message: `The 'includeThoughts' option is only supported with the Google Vertex provider and might not be supported or could behave unexpectedly with the current Google provider (${this.config.provider}).`
+    var _a152;
+    const baseArgs = __spreadValues(__spreadValues({
+      // model id:
+      model: this.modelId,
+      models: this.settings.models,
+      // model specific settings:
+      logit_bias: this.settings.logitBias,
+      logprobs: this.settings.logprobs === true || typeof this.settings.logprobs === "number" ? true : void 0,
+      top_logprobs: typeof this.settings.logprobs === "number" ? this.settings.logprobs : typeof this.settings.logprobs === "boolean" ? this.settings.logprobs ? 0 : void 0 : void 0,
+      user: this.settings.user,
+      parallel_tool_calls: this.settings.parallelToolCalls,
+      // standardized settings:
+      max_tokens: maxOutputTokens,
+      temperature,
+      top_p: topP,
+      frequency_penalty: frequencyPenalty,
+      presence_penalty: presencePenalty,
+      seed,
+      stop: stopSequences,
+      response_format: responseFormat,
+      top_k: topK,
+      // messages:
+      messages: convertToOpenRouterChatMessages(prompt),
+      // OpenRouter specific settings:
+      include_reasoning: this.settings.includeReasoning,
+      reasoning: this.settings.reasoning,
+      usage: this.settings.usage,
+      // Web search settings:
+      plugins: this.settings.plugins,
+      web_search_options: this.settings.web_search_options,
+      // Provider routing settings:
+      provider: this.settings.provider
+    }, this.config.extraBody), this.settings.extraBody);
+    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null) {
+      return __spreadProps(__spreadValues({}, baseArgs), {
+        response_format: {
+          type: "json_schema",
+          json_schema: __spreadValues({
+            schema: responseFormat.schema,
+            strict: true,
+            name: (_a152 = responseFormat.name) != null ? _a152 : "response"
+          }, responseFormat.description && {
+            description: responseFormat.description
+          })
+        }
       });
     }
-    const isGemmaModel = this.modelId.toLowerCase().startsWith("gemma-");
-    const { contents, systemInstruction } = convertToGoogleGenerativeAIMessages(
-      prompt,
-      { isGemmaModel }
-    );
-    const {
-      tools: googleTools2,
-      toolConfig: googleToolConfig,
-      toolWarnings
-    } = prepareTools({
-      tools,
-      toolChoice,
-      modelId: this.modelId
-    });
-    return {
-      args: {
-        generationConfig: {
-          // standardized settings:
-          maxOutputTokens,
-          temperature,
-          topK,
-          topP,
-          frequencyPenalty,
-          presencePenalty,
-          stopSequences,
-          seed,
-          // response format:
-          responseMimeType: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? "application/json" : void 0,
-          responseSchema: (responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && // Google GenAI does not support all OpenAPI Schema features,
-          // so this is needed as an escape hatch:
-          // TODO convert into provider option
-          ((_b8 = googleOptions == null ? void 0 : googleOptions.structuredOutputs) != null ? _b8 : true) ? convertJSONSchemaToOpenAPISchema(responseFormat.schema) : void 0,
-          ...(googleOptions == null ? void 0 : googleOptions.audioTimestamp) && {
-            audioTimestamp: googleOptions.audioTimestamp
-          },
-          // provider options:
-          responseModalities: googleOptions == null ? void 0 : googleOptions.responseModalities,
-          thinkingConfig: googleOptions == null ? void 0 : googleOptions.thinkingConfig
-        },
-        contents,
-        systemInstruction: isGemmaModel ? void 0 : systemInstruction,
-        safetySettings: googleOptions == null ? void 0 : googleOptions.safetySettings,
-        tools: googleTools2,
-        toolConfig: googleToolConfig,
-        cachedContent: googleOptions == null ? void 0 : googleOptions.cachedContent,
-        labels: googleOptions == null ? void 0 : googleOptions.labels
-      },
-      warnings: [...warnings, ...toolWarnings]
-    };
+    if (tools && tools.length > 0) {
+      const mappedTools = tools.filter((tool2) => tool2.type === "function").map((tool2) => ({
+        type: "function",
+        function: {
+          name: tool2.name,
+          description: tool2.description,
+          parameters: tool2.inputSchema
+        }
+      }));
+      return __spreadProps(__spreadValues({}, baseArgs), {
+        tools: mappedTools,
+        tool_choice: toolChoice ? getChatCompletionToolChoice(toolChoice) : void 0
+      });
+    }
+    return baseArgs;
   }
   async doGenerate(options) {
-    var _a16, _b8, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
-    const { args, warnings } = await this.getArgs(options);
-    const body = JSON.stringify(args);
-    const mergedHeaders = combineHeaders(
-      await resolve(this.config.headers),
-      options.headers
-    );
-    const {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi({
-      url: `${this.config.baseURL}/${getModelPath(
-        this.modelId
-      )}:generateContent`,
-      headers: mergedHeaders,
+    var _a152, _b8, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+    const providerOptions = options.providerOptions || {};
+    const openrouterOptions = providerOptions.openrouter || {};
+    const args = __spreadValues(__spreadValues({}, this.getArgs(options)), openrouterOptions);
+    const { value: response, responseHeaders } = await postJsonToApi({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body: args,
-      failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(responseSchema),
+      failedResponseHandler: openrouterFailedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(
+        OpenRouterNonStreamChatCompletionResponseSchema
+      ),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     });
-    const candidate = response.candidates[0];
+    const choice = response.choices[0];
+    if (!choice) {
+      throw new Error("No choice in response");
+    }
+    const usageInfo = response.usage ? {
+      inputTokens: (_a152 = response.usage.prompt_tokens) != null ? _a152 : 0,
+      outputTokens: (_b8 = response.usage.completion_tokens) != null ? _b8 : 0,
+      totalTokens: ((_c = response.usage.prompt_tokens) != null ? _c : 0) + ((_d = response.usage.completion_tokens) != null ? _d : 0),
+      reasoningTokens: (_f = (_e = response.usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0,
+      cachedInputTokens: (_h = (_g = response.usage.prompt_tokens_details) == null ? void 0 : _g.cached_tokens) != null ? _h : 0
+    } : {
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+      reasoningTokens: 0,
+      cachedInputTokens: 0
+    };
+    const reasoningDetails = (_i = choice.message.reasoning_details) != null ? _i : [];
+    const reasoning = reasoningDetails.length > 0 ? reasoningDetails.map((detail) => {
+      switch (detail.type) {
+        case "reasoning.text": {
+          if (detail.text) {
+            return {
+              type: "reasoning",
+              text: detail.text
+            };
+          }
+          break;
+        }
+        case "reasoning.summary": {
+          if (detail.summary) {
+            return {
+              type: "reasoning",
+              text: detail.summary
+            };
+          }
+          break;
+        }
+        case "reasoning.encrypted": {
+          if (detail.data) {
+            return {
+              type: "reasoning",
+              text: "[REDACTED]"
+            };
+          }
+          break;
+        }
+      }
+      return null;
+    }).filter((p) => p !== null) : choice.message.reasoning ? [
+      {
+        type: "reasoning",
+        text: choice.message.reasoning
+      }
+    ] : [];
     const content = [];
-    const parts = (_b8 = (_a16 = candidate.content) == null ? void 0 : _a16.parts) != null ? _b8 : [];
-    const usageMetadata = response.usageMetadata;
-    let lastCodeExecutionToolCallId;
-    for (const part of parts) {
-      if ("executableCode" in part && ((_c = part.executableCode) == null ? void 0 : _c.code)) {
-        const toolCallId = this.config.generateId();
-        lastCodeExecutionToolCallId = toolCallId;
+    content.push(...reasoning);
+    if (choice.message.content) {
+      content.push({
+        type: "text",
+        text: choice.message.content
+      });
+    }
+    if (choice.message.tool_calls) {
+      for (const toolCall of choice.message.tool_calls) {
         content.push({
           type: "tool-call",
-          toolCallId,
-          toolName: "code_execution",
-          input: JSON.stringify(part.executableCode),
-          providerExecuted: true
-        });
-      } else if ("codeExecutionResult" in part && part.codeExecutionResult) {
-        content.push({
-          type: "tool-result",
-          // Assumes a result directly follows its corresponding call part.
-          toolCallId: lastCodeExecutionToolCallId,
-          toolName: "code_execution",
-          result: {
-            outcome: part.codeExecutionResult.outcome,
-            output: part.codeExecutionResult.output
-          },
-          providerExecuted: true
-        });
-        lastCodeExecutionToolCallId = void 0;
-      } else if ("text" in part && part.text != null && part.text.length > 0) {
-        content.push({
-          type: part.thought === true ? "reasoning" : "text",
-          text: part.text,
-          providerMetadata: part.thoughtSignature ? { google: { thoughtSignature: part.thoughtSignature } } : void 0
-        });
-      } else if ("functionCall" in part) {
-        content.push({
-          type: "tool-call",
-          toolCallId: this.config.generateId(),
-          toolName: part.functionCall.name,
-          input: JSON.stringify(part.functionCall.args),
-          providerMetadata: part.thoughtSignature ? { google: { thoughtSignature: part.thoughtSignature } } : void 0
-        });
-      } else if ("inlineData" in part) {
-        content.push({
-          type: "file",
-          data: part.inlineData.data,
-          mediaType: part.inlineData.mimeType
+          toolCallId: (_j = toolCall.id) != null ? _j : generateId(),
+          toolName: toolCall.function.name,
+          input: toolCall.function.arguments
         });
       }
     }
-    const sources = (_d = extractSources({
-      groundingMetadata: candidate.groundingMetadata,
-      generateId: this.config.generateId
-    })) != null ? _d : [];
-    for (const source of sources) {
-      content.push(source);
+    if (choice.message.images) {
+      for (const image of choice.message.images) {
+        content.push({
+          type: "file",
+          mediaType: getMediaType(image.image_url.url, "image/jpeg"),
+          data: getBase64FromDataUrl(image.image_url.url)
+        });
+      }
+    }
+    if (choice.message.annotations) {
+      for (const annotation of choice.message.annotations) {
+        if (annotation.type === "url_citation") {
+          content.push({
+            type: "source",
+            sourceType: "url",
+            id: annotation.url_citation.url,
+            url: annotation.url_citation.url,
+            title: annotation.url_citation.title,
+            providerMetadata: {
+              openrouter: {
+                content: annotation.url_citation.content || ""
+              }
+            }
+          });
+        }
+      }
     }
     return {
       content,
-      finishReason: mapGoogleGenerativeAIFinishReason({
-        finishReason: candidate.finishReason,
-        hasToolCalls: content.some((part) => part.type === "tool-call")
-      }),
-      usage: {
-        inputTokens: (_e = usageMetadata == null ? void 0 : usageMetadata.promptTokenCount) != null ? _e : void 0,
-        outputTokens: (_f = usageMetadata == null ? void 0 : usageMetadata.candidatesTokenCount) != null ? _f : void 0,
-        totalTokens: (_g = usageMetadata == null ? void 0 : usageMetadata.totalTokenCount) != null ? _g : void 0,
-        reasoningTokens: (_h = usageMetadata == null ? void 0 : usageMetadata.thoughtsTokenCount) != null ? _h : void 0,
-        cachedInputTokens: (_i = usageMetadata == null ? void 0 : usageMetadata.cachedContentTokenCount) != null ? _i : void 0
-      },
-      warnings,
+      finishReason: mapOpenRouterFinishReason(choice.finish_reason),
+      usage: usageInfo,
+      warnings: [],
       providerMetadata: {
-        google: {
-          groundingMetadata: (_j = candidate.groundingMetadata) != null ? _j : null,
-          urlContextMetadata: (_k = candidate.urlContextMetadata) != null ? _k : null,
-          safetyRatings: (_l = candidate.safetyRatings) != null ? _l : null,
-          usageMetadata: usageMetadata != null ? usageMetadata : null
+        openrouter: {
+          provider: (_k = response.provider) != null ? _k : "",
+          usage: {
+            promptTokens: (_l = usageInfo.inputTokens) != null ? _l : 0,
+            completionTokens: (_m = usageInfo.outputTokens) != null ? _m : 0,
+            totalTokens: (_n = usageInfo.totalTokens) != null ? _n : 0,
+            cost: (_o = response.usage) == null ? void 0 : _o.cost,
+            promptTokensDetails: {
+              cachedTokens: (_r = (_q = (_p = response.usage) == null ? void 0 : _p.prompt_tokens_details) == null ? void 0 : _q.cached_tokens) != null ? _r : 0
+            },
+            completionTokensDetails: {
+              reasoningTokens: (_u = (_t = (_s = response.usage) == null ? void 0 : _s.completion_tokens_details) == null ? void 0 : _t.reasoning_tokens) != null ? _u : 0
+            },
+            costDetails: {
+              upstreamInferenceCost: (_x = (_w = (_v = response.usage) == null ? void 0 : _v.cost_details) == null ? void 0 : _w.upstream_inference_cost) != null ? _x : 0
+            }
+          }
         }
       },
-      request: { body },
+      request: { body: args },
       response: {
-        // TODO timestamp, model id, id
-        headers: responseHeaders,
-        body: rawResponse
+        id: response.id,
+        modelId: response.model,
+        headers: responseHeaders
       }
     };
   }
   async doStream(options) {
-    const { args, warnings } = await this.getArgs(options);
-    const body = JSON.stringify(args);
-    const headers = combineHeaders(
-      await resolve(this.config.headers),
-      options.headers
-    );
-    const { responseHeaders, value: response } = await postJsonToApi({
-      url: `${this.config.baseURL}/${getModelPath(
-        this.modelId
-      )}:streamGenerateContent?alt=sse`,
-      headers,
-      body: args,
-      failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(chunkSchema),
+    var _a152;
+    const providerOptions = options.providerOptions || {};
+    const openrouterOptions = providerOptions.openrouter || {};
+    const args = __spreadValues(__spreadValues({}, this.getArgs(options)), openrouterOptions);
+    const { value: response, responseHeaders } = await postJsonToApi({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body: __spreadProps(__spreadValues({}, args), {
+        stream: true,
+        // only include stream_options when in strict compatibility mode:
+        stream_options: this.config.compatibility === "strict" ? __spreadValues({
+          include_usage: true
+        }, ((_a152 = this.settings.usage) == null ? void 0 : _a152.include) ? { include_usage: true } : {}) : void 0
+      }),
+      failedResponseHandler: openrouterFailedResponseHandler,
+      successfulResponseHandler: createEventSourceResponseHandler(
+        OpenRouterStreamChatCompletionChunkSchema
+      ),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     });
-    let finishReason = "unknown";
+    const toolCalls = [];
+    let finishReason = "other";
     const usage = {
-      inputTokens: void 0,
-      outputTokens: void 0,
-      totalTokens: void 0
+      inputTokens: Number.NaN,
+      outputTokens: Number.NaN,
+      totalTokens: Number.NaN,
+      reasoningTokens: Number.NaN,
+      cachedInputTokens: Number.NaN
     };
-    let providerMetadata = void 0;
-    const generateId3 = this.config.generateId;
-    let hasToolCalls = false;
-    let currentTextBlockId = null;
-    let currentReasoningBlockId = null;
-    let blockCounter = 0;
-    const emittedSourceUrls = /* @__PURE__ */ new Set();
-    let lastCodeExecutionToolCallId;
+    const openrouterUsage = {};
+    let textStarted = false;
+    let reasoningStarted = false;
+    let textId;
+    let reasoningId;
+    let openrouterResponseId;
+    let provider;
     return {
       stream: response.pipeThrough(
         new TransformStream({
-          start(controller) {
-            controller.enqueue({ type: "stream-start", warnings });
-          },
           transform(chunk, controller) {
-            var _a16, _b8, _c, _d, _e, _f, _g, _h, _i, _j, _k;
-            if (options.includeRawChunks) {
-              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-            }
+            var _a16, _b8, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
             if (!chunk.success) {
+              finishReason = "error";
               controller.enqueue({ type: "error", error: chunk.error });
               return;
             }
             const value = chunk.value;
-            const usageMetadata = value.usageMetadata;
-            if (usageMetadata != null) {
-              usage.inputTokens = (_a16 = usageMetadata.promptTokenCount) != null ? _a16 : void 0;
-              usage.outputTokens = (_b8 = usageMetadata.candidatesTokenCount) != null ? _b8 : void 0;
-              usage.totalTokens = (_c = usageMetadata.totalTokenCount) != null ? _c : void 0;
-              usage.reasoningTokens = (_d = usageMetadata.thoughtsTokenCount) != null ? _d : void 0;
-              usage.cachedInputTokens = (_e = usageMetadata.cachedContentTokenCount) != null ? _e : void 0;
-            }
-            const candidate = (_f = value.candidates) == null ? void 0 : _f[0];
-            if (candidate == null) {
+            if ("error" in value) {
+              finishReason = "error";
+              controller.enqueue({ type: "error", error: value.error });
               return;
             }
-            const content = candidate.content;
-            const sources = extractSources({
-              groundingMetadata: candidate.groundingMetadata,
-              generateId: generateId3
-            });
-            if (sources != null) {
-              for (const source of sources) {
-                if (source.sourceType === "url" && !emittedSourceUrls.has(source.url)) {
-                  emittedSourceUrls.add(source.url);
-                  controller.enqueue(source);
+            if (value.provider) {
+              provider = value.provider;
+            }
+            if (value.id) {
+              openrouterResponseId = value.id;
+              controller.enqueue({
+                type: "response-metadata",
+                id: value.id
+              });
+            }
+            if (value.model) {
+              controller.enqueue({
+                type: "response-metadata",
+                modelId: value.model
+              });
+            }
+            if (value.usage != null) {
+              usage.inputTokens = value.usage.prompt_tokens;
+              usage.outputTokens = value.usage.completion_tokens;
+              usage.totalTokens = value.usage.prompt_tokens + value.usage.completion_tokens;
+              openrouterUsage.promptTokens = value.usage.prompt_tokens;
+              if (value.usage.prompt_tokens_details) {
+                const cachedInputTokens = (_a16 = value.usage.prompt_tokens_details.cached_tokens) != null ? _a16 : 0;
+                usage.cachedInputTokens = cachedInputTokens;
+                openrouterUsage.promptTokensDetails = {
+                  cachedTokens: cachedInputTokens
+                };
+              }
+              openrouterUsage.completionTokens = value.usage.completion_tokens;
+              if (value.usage.completion_tokens_details) {
+                const reasoningTokens = (_b8 = value.usage.completion_tokens_details.reasoning_tokens) != null ? _b8 : 0;
+                usage.reasoningTokens = reasoningTokens;
+                openrouterUsage.completionTokensDetails = {
+                  reasoningTokens
+                };
+              }
+              openrouterUsage.cost = value.usage.cost;
+              openrouterUsage.totalTokens = value.usage.total_tokens;
+            }
+            const choice = value.choices[0];
+            if ((choice == null ? void 0 : choice.finish_reason) != null) {
+              finishReason = mapOpenRouterFinishReason(choice.finish_reason);
+            }
+            if ((choice == null ? void 0 : choice.delta) == null) {
+              return;
+            }
+            const delta = choice.delta;
+            const emitReasoningChunk = (chunkText) => {
+              if (!reasoningStarted) {
+                reasoningId = openrouterResponseId || generateId();
+                controller.enqueue({
+                  type: "reasoning-start",
+                  id: reasoningId
+                });
+                reasoningStarted = true;
+              }
+              controller.enqueue({
+                type: "reasoning-delta",
+                delta: chunkText,
+                id: reasoningId || generateId()
+              });
+            };
+            if (delta.reasoning_details && delta.reasoning_details.length > 0) {
+              for (const detail of delta.reasoning_details) {
+                switch (detail.type) {
+                  case "reasoning.text": {
+                    if (detail.text) {
+                      emitReasoningChunk(detail.text);
+                    }
+                    break;
+                  }
+                  case "reasoning.encrypted": {
+                    if (detail.data) {
+                      emitReasoningChunk("[REDACTED]");
+                    }
+                    break;
+                  }
+                  case "reasoning.summary": {
+                    if (detail.summary) {
+                      emitReasoningChunk(detail.summary);
+                    }
+                    break;
+                  }
+                }
+              }
+            } else if (delta.reasoning) {
+              emitReasoningChunk(delta.reasoning);
+            }
+            if (delta.content) {
+              if (reasoningStarted && !textStarted) {
+                controller.enqueue({
+                  type: "reasoning-end",
+                  id: reasoningId || generateId()
+                });
+                reasoningStarted = false;
+              }
+              if (!textStarted) {
+                textId = openrouterResponseId || generateId();
+                controller.enqueue({
+                  type: "text-start",
+                  id: textId
+                });
+                textStarted = true;
+              }
+              controller.enqueue({
+                type: "text-delta",
+                delta: delta.content,
+                id: textId || generateId()
+              });
+            }
+            if (delta.annotations) {
+              for (const annotation of delta.annotations) {
+                if (annotation.type === "url_citation") {
+                  controller.enqueue({
+                    type: "source",
+                    sourceType: "url",
+                    id: annotation.url_citation.url,
+                    url: annotation.url_citation.url,
+                    title: annotation.url_citation.title,
+                    providerMetadata: {
+                      openrouter: {
+                        content: annotation.url_citation.content || ""
+                      }
+                    }
+                  });
                 }
               }
             }
-            if (content != null) {
-              const parts = (_g = content.parts) != null ? _g : [];
-              for (const part of parts) {
-                if ("executableCode" in part && ((_h = part.executableCode) == null ? void 0 : _h.code)) {
-                  const toolCallId = generateId3();
-                  lastCodeExecutionToolCallId = toolCallId;
-                  controller.enqueue({
-                    type: "tool-call",
-                    toolCallId,
-                    toolName: "code_execution",
-                    input: JSON.stringify(part.executableCode),
-                    providerExecuted: true
-                  });
-                  hasToolCalls = true;
-                } else if ("codeExecutionResult" in part && part.codeExecutionResult) {
-                  const toolCallId = lastCodeExecutionToolCallId;
-                  if (toolCallId) {
-                    controller.enqueue({
-                      type: "tool-result",
-                      toolCallId,
-                      toolName: "code_execution",
-                      result: {
-                        outcome: part.codeExecutionResult.outcome,
-                        output: part.codeExecutionResult.output
-                      },
-                      providerExecuted: true
-                    });
-                    lastCodeExecutionToolCallId = void 0;
-                  }
-                } else if ("text" in part && part.text != null && part.text.length > 0) {
-                  if (part.thought === true) {
-                    if (currentTextBlockId !== null) {
-                      controller.enqueue({
-                        type: "text-end",
-                        id: currentTextBlockId
-                      });
-                      currentTextBlockId = null;
-                    }
-                    if (currentReasoningBlockId === null) {
-                      currentReasoningBlockId = String(blockCounter++);
-                      controller.enqueue({
-                        type: "reasoning-start",
-                        id: currentReasoningBlockId,
-                        providerMetadata: part.thoughtSignature ? {
-                          google: {
-                            thoughtSignature: part.thoughtSignature
-                          }
-                        } : void 0
-                      });
-                    }
-                    controller.enqueue({
-                      type: "reasoning-delta",
-                      id: currentReasoningBlockId,
-                      delta: part.text,
-                      providerMetadata: part.thoughtSignature ? {
-                        google: { thoughtSignature: part.thoughtSignature }
-                      } : void 0
-                    });
-                  } else {
-                    if (currentReasoningBlockId !== null) {
-                      controller.enqueue({
-                        type: "reasoning-end",
-                        id: currentReasoningBlockId
-                      });
-                      currentReasoningBlockId = null;
-                    }
-                    if (currentTextBlockId === null) {
-                      currentTextBlockId = String(blockCounter++);
-                      controller.enqueue({
-                        type: "text-start",
-                        id: currentTextBlockId,
-                        providerMetadata: part.thoughtSignature ? {
-                          google: {
-                            thoughtSignature: part.thoughtSignature
-                          }
-                        } : void 0
-                      });
-                    }
-                    controller.enqueue({
-                      type: "text-delta",
-                      id: currentTextBlockId,
-                      delta: part.text,
-                      providerMetadata: part.thoughtSignature ? {
-                        google: { thoughtSignature: part.thoughtSignature }
-                      } : void 0
+            if (delta.tool_calls != null) {
+              for (const toolCallDelta of delta.tool_calls) {
+                const index = (_c = toolCallDelta.index) != null ? _c : toolCalls.length - 1;
+                if (toolCalls[index] == null) {
+                  if (toolCallDelta.type !== "function") {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'function' type.`
                     });
                   }
+                  if (toolCallDelta.id == null) {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'id' to be a string.`
+                    });
+                  }
+                  if (((_d = toolCallDelta.function) == null ? void 0 : _d.name) == null) {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'function.name' to be a string.`
+                    });
+                  }
+                  toolCalls[index] = {
+                    id: toolCallDelta.id,
+                    type: "function",
+                    function: {
+                      name: toolCallDelta.function.name,
+                      arguments: (_e = toolCallDelta.function.arguments) != null ? _e : ""
+                    },
+                    inputStarted: false,
+                    sent: false
+                  };
+                  const toolCall2 = toolCalls[index];
+                  if (toolCall2 == null) {
+                    throw new Error("Tool call is missing");
+                  }
+                  if (((_f = toolCall2.function) == null ? void 0 : _f.name) != null && ((_g = toolCall2.function) == null ? void 0 : _g.arguments) != null && isParsableJson(toolCall2.function.arguments)) {
+                    toolCall2.inputStarted = true;
+                    controller.enqueue({
+                      type: "tool-input-start",
+                      id: toolCall2.id,
+                      toolName: toolCall2.function.name
+                    });
+                    controller.enqueue({
+                      type: "tool-input-delta",
+                      id: toolCall2.id,
+                      delta: toolCall2.function.arguments
+                    });
+                    controller.enqueue({
+                      type: "tool-input-end",
+                      id: toolCall2.id
+                    });
+                    controller.enqueue({
+                      type: "tool-call",
+                      toolCallId: toolCall2.id,
+                      toolName: toolCall2.function.name,
+                      input: toolCall2.function.arguments
+                    });
+                    toolCall2.sent = true;
+                  }
+                  continue;
                 }
-              }
-              const inlineDataParts = getInlineDataParts(content.parts);
-              if (inlineDataParts != null) {
-                for (const part of inlineDataParts) {
-                  controller.enqueue({
-                    type: "file",
-                    mediaType: part.inlineData.mimeType,
-                    data: part.inlineData.data
-                  });
+                const toolCall = toolCalls[index];
+                if (toolCall == null) {
+                  throw new Error("Tool call is missing");
                 }
-              }
-              const toolCallDeltas = getToolCallsFromParts({
-                parts: content.parts,
-                generateId: generateId3
-              });
-              if (toolCallDeltas != null) {
-                for (const toolCall of toolCallDeltas) {
+                if (!toolCall.inputStarted) {
+                  toolCall.inputStarted = true;
                   controller.enqueue({
                     type: "tool-input-start",
-                    id: toolCall.toolCallId,
-                    toolName: toolCall.toolName,
-                    providerMetadata: toolCall.providerMetadata
+                    id: toolCall.id,
+                    toolName: toolCall.function.name
                   });
-                  controller.enqueue({
-                    type: "tool-input-delta",
-                    id: toolCall.toolCallId,
-                    delta: toolCall.args,
-                    providerMetadata: toolCall.providerMetadata
-                  });
-                  controller.enqueue({
-                    type: "tool-input-end",
-                    id: toolCall.toolCallId,
-                    providerMetadata: toolCall.providerMetadata
-                  });
+                }
+                if (((_h = toolCallDelta.function) == null ? void 0 : _h.arguments) != null) {
+                  toolCall.function.arguments += (_j = (_i = toolCallDelta.function) == null ? void 0 : _i.arguments) != null ? _j : "";
+                }
+                controller.enqueue({
+                  type: "tool-input-delta",
+                  id: toolCall.id,
+                  delta: (_k = toolCallDelta.function.arguments) != null ? _k : ""
+                });
+                if (((_l = toolCall.function) == null ? void 0 : _l.name) != null && ((_m = toolCall.function) == null ? void 0 : _m.arguments) != null && isParsableJson(toolCall.function.arguments)) {
                   controller.enqueue({
                     type: "tool-call",
-                    toolCallId: toolCall.toolCallId,
-                    toolName: toolCall.toolName,
-                    input: toolCall.args,
-                    providerMetadata: toolCall.providerMetadata
+                    toolCallId: (_n = toolCall.id) != null ? _n : generateId(),
+                    toolName: toolCall.function.name,
+                    input: toolCall.function.arguments
                   });
-                  hasToolCalls = true;
+                  toolCall.sent = true;
                 }
               }
             }
-            if (candidate.finishReason != null) {
-              finishReason = mapGoogleGenerativeAIFinishReason({
-                finishReason: candidate.finishReason,
-                hasToolCalls
-              });
-              providerMetadata = {
-                google: {
-                  groundingMetadata: (_i = candidate.groundingMetadata) != null ? _i : null,
-                  urlContextMetadata: (_j = candidate.urlContextMetadata) != null ? _j : null,
-                  safetyRatings: (_k = candidate.safetyRatings) != null ? _k : null
-                }
-              };
-              if (usageMetadata != null) {
-                providerMetadata.google.usageMetadata = usageMetadata;
+            if (delta.images != null) {
+              for (const image of delta.images) {
+                controller.enqueue({
+                  type: "file",
+                  mediaType: getMediaType(image.image_url.url, "image/jpeg"),
+                  data: getBase64FromDataUrl(image.image_url.url)
+                });
               }
             }
           },
           flush(controller) {
-            if (currentTextBlockId !== null) {
-              controller.enqueue({
-                type: "text-end",
-                id: currentTextBlockId
-              });
+            var _a16;
+            if (finishReason === "tool-calls") {
+              for (const toolCall of toolCalls) {
+                if (toolCall && !toolCall.sent) {
+                  controller.enqueue({
+                    type: "tool-call",
+                    toolCallId: (_a16 = toolCall.id) != null ? _a16 : generateId(),
+                    toolName: toolCall.function.name,
+                    // Coerce invalid arguments to an empty JSON object
+                    input: isParsableJson(toolCall.function.arguments) ? toolCall.function.arguments : "{}"
+                  });
+                  toolCall.sent = true;
+                }
+              }
             }
-            if (currentReasoningBlockId !== null) {
+            if (reasoningStarted) {
               controller.enqueue({
                 type: "reasoning-end",
-                id: currentReasoningBlockId
+                id: reasoningId || generateId()
               });
+            }
+            if (textStarted) {
+              controller.enqueue({
+                type: "text-end",
+                id: textId || generateId()
+              });
+            }
+            const openrouterMetadata = {
+              usage: openrouterUsage
+            };
+            if (provider !== void 0) {
+              openrouterMetadata.provider = provider;
             }
             controller.enqueue({
               type: "finish",
               finishReason,
               usage,
-              providerMetadata
+              providerMetadata: {
+                openrouter: openrouterMetadata
+              }
             });
           }
         })
       ),
-      response: { headers: responseHeaders },
-      request: { body }
+      warnings: [],
+      request: { body: args },
+      response: { headers: responseHeaders }
     };
   }
 };
-function getToolCallsFromParts({
-  parts,
-  generateId: generateId3
+function convertToOpenRouterCompletionPrompt({
+  prompt,
+  inputFormat,
+  user = "user",
+  assistant = "assistant"
 }) {
-  const functionCallParts = parts == null ? void 0 : parts.filter(
-    (part) => "functionCall" in part
-  );
-  return functionCallParts == null || functionCallParts.length === 0 ? void 0 : functionCallParts.map((part) => ({
-    type: "tool-call",
-    toolCallId: generateId3(),
-    toolName: part.functionCall.name,
-    args: JSON.stringify(part.functionCall.args),
-    providerMetadata: part.thoughtSignature ? { google: { thoughtSignature: part.thoughtSignature } } : void 0
-  }));
+  if (prompt.length === 1 && prompt[0] && prompt[0].role === "user" && prompt[0].content.length === 1 && prompt[0].content[0] && prompt[0].content[0].type === "text") {
+    return { prompt: prompt[0].content[0].text };
+  }
+  let text2 = "";
+  if (prompt[0] && prompt[0].role === "system") {
+    text2 += `${prompt[0].content}
+
+`;
+    prompt = prompt.slice(1);
+  }
+  for (const { role, content } of prompt) {
+    switch (role) {
+      case "system": {
+        throw new InvalidPromptError2({
+          message: `Unexpected system message in prompt: ${content}`,
+          prompt
+        });
+      }
+      case "user": {
+        const userMessage = content.map((part) => {
+          switch (part.type) {
+            case "text": {
+              return part.text;
+            }
+            case "file": {
+              throw new UnsupportedFunctionalityError({
+                functionality: "file attachments"
+              });
+            }
+            default: {
+              return "";
+            }
+          }
+        }).join("");
+        text2 += `${user}:
+${userMessage}
+
+`;
+        break;
+      }
+      case "assistant": {
+        const assistantMessage = content.map(
+          (part) => {
+            switch (part.type) {
+              case "text": {
+                return part.text;
+              }
+              case "tool-call": {
+                throw new UnsupportedFunctionalityError({
+                  functionality: "tool-call messages"
+                });
+              }
+              case "tool-result": {
+                throw new UnsupportedFunctionalityError({
+                  functionality: "tool-result messages"
+                });
+              }
+              case "reasoning": {
+                throw new UnsupportedFunctionalityError({
+                  functionality: "reasoning messages"
+                });
+              }
+              case "file": {
+                throw new UnsupportedFunctionalityError({
+                  functionality: "file attachments"
+                });
+              }
+              default: {
+                return "";
+              }
+            }
+          }
+        ).join("");
+        text2 += `${assistant}:
+${assistantMessage}
+
+`;
+        break;
+      }
+      case "tool": {
+        throw new UnsupportedFunctionalityError({
+          functionality: "tool messages"
+        });
+      }
+    }
+  }
+  text2 += `${assistant}:
+`;
+  return {
+    prompt: text2
+  };
 }
-function getInlineDataParts(parts) {
-  return parts == null ? void 0 : parts.filter(
-    (part) => "inlineData" in part
-  );
-}
-function extractSources({
-  groundingMetadata,
-  generateId: generateId3
-}) {
-  var _a16;
-  return (_a16 = groundingMetadata == null ? void 0 : groundingMetadata.groundingChunks) == null ? void 0 : _a16.filter(
-    (chunk) => chunk.web != null
-  ).map((chunk) => ({
-    type: "source",
-    sourceType: "url",
-    id: generateId3(),
-    url: chunk.web.uri,
-    title: chunk.web.title
-  }));
-}
-var contentSchema = object$1({
-  parts: array(
-    union([
-      // note: order matters since text can be fully empty
+var OpenRouterCompletionChunkSchema = union([
+  object$1({
+    id: string().optional(),
+    model: string().optional(),
+    choices: array(
       object$1({
-        functionCall: object$1({
-          name: string(),
-          args: unknown()
-        }),
-        thoughtSignature: string().nullish()
-      }),
-      object$1({
-        inlineData: object$1({
-          mimeType: string(),
-          data: string()
-        })
-      }),
-      object$1({
-        executableCode: object$1({
-          language: string(),
-          code: string()
-        }).nullish(),
-        codeExecutionResult: object$1({
-          outcome: string(),
-          output: string()
-        }).nullish(),
-        text: string().nullish(),
-        thought: boolean().nullish(),
-        thoughtSignature: string().nullish()
+        text: string(),
+        reasoning: string().nullish().optional(),
+        reasoning_details: ReasoningDetailArraySchema.nullish(),
+        finish_reason: string().nullish(),
+        index: number().nullish(),
+        logprobs: object$1({
+          tokens: array(string()),
+          token_logprobs: array(number()),
+          top_logprobs: array(record(string(), number())).nullable()
+        }).nullable().optional()
       })
-    ])
-  ).nullish()
-});
-var safetyRatingSchema = object$1({
-  category: string().nullish(),
-  probability: string().nullish(),
-  probabilityScore: number().nullish(),
-  severity: string().nullish(),
-  severityScore: number().nullish(),
-  blocked: boolean().nullish()
-});
-var usageSchema = object$1({
-  cachedContentTokenCount: number().nullish(),
-  thoughtsTokenCount: number().nullish(),
-  promptTokenCount: number().nullish(),
-  candidatesTokenCount: number().nullish(),
-  totalTokenCount: number().nullish()
-});
-var responseSchema = object$1({
-  candidates: array(
-    object$1({
-      content: contentSchema.nullish().or(object$1({}).strict()),
-      finishReason: string().nullish(),
-      safetyRatings: array(safetyRatingSchema).nullish(),
-      groundingMetadata: groundingMetadataSchema.nullish(),
-      urlContextMetadata: urlContextMetadataSchema.nullish()
-    })
-  ),
-  usageMetadata: usageSchema.nullish()
-});
-var chunkSchema = object$1({
-  candidates: array(
-    object$1({
-      content: contentSchema.nullish(),
-      finishReason: string().nullish(),
-      safetyRatings: array(safetyRatingSchema).nullish(),
-      groundingMetadata: groundingMetadataSchema.nullish(),
-      urlContextMetadata: urlContextMetadataSchema.nullish()
-    })
-  ).nullish(),
-  usageMetadata: usageSchema.nullish()
-});
-var codeExecution = createProviderDefinedToolFactoryWithOutputSchema({
-  id: "google.code_execution",
-  name: "code_execution",
-  inputSchema: object$1({
-    language: string().describe("The programming language of the code."),
-    code: string().describe("The code to be executed.")
+    ),
+    usage: object$1({
+      prompt_tokens: number(),
+      prompt_tokens_details: object$1({
+        cached_tokens: number()
+      }).nullish(),
+      completion_tokens: number(),
+      completion_tokens_details: object$1({
+        reasoning_tokens: number()
+      }).nullish(),
+      total_tokens: number(),
+      cost: number().optional()
+    }).nullish()
   }),
-  outputSchema: object$1({
-    outcome: string().describe('The outcome of the execution (e.g., "OUTCOME_OK").'),
-    output: string().describe("The output from the code execution.")
-  })
-});
-var googleTools = {
-  /**
-   * Creates a Google search tool that gives Google direct access to real-time web content.
-   * Must have name "google_search".
-   */
-  googleSearch,
-  /**
-   * Creates a URL context tool that gives Google direct access to real-time web content.
-   * Must have name "url_context".
-   */
-  urlContext,
-  /**
-   * A tool that enables the model to generate and run Python code.
-   * Must have name "code_execution".
-   *
-   * @note Ensure the selected model supports Code Execution.
-   * Multi-tool usage with the code execution tool is typically compatible with Gemini >=2 models.
-   *
-   * @see https://ai.google.dev/gemini-api/docs/code-execution (Google AI)
-   * @see https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/code-execution-api (Vertex AI)
-   */
-  codeExecution
-};
-var GoogleGenerativeAIImageModel = class {
+  OpenRouterErrorResponseSchema
+]);
+var OpenRouterCompletionLanguageModel = class {
   constructor(modelId, settings, config2) {
+    this.specificationVersion = "v2";
+    this.provider = "openrouter";
+    this.supportedUrls = {
+      "image/*": [
+        /^data:image\/[a-zA-Z]+;base64,/,
+        /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i
+      ],
+      "text/*": [/^data:text\//, /^https?:\/\/.+$/],
+      "application/*": [/^data:application\//, /^https?:\/\/.+$/]
+    };
+    this.defaultObjectGenerationMode = void 0;
     this.modelId = modelId;
     this.settings = settings;
     this.config = config2;
-    this.specificationVersion = "v2";
   }
-  get maxImagesPerCall() {
-    var _a16;
-    return (_a16 = this.settings.maxImagesPerCall) != null ? _a16 : 4;
-  }
-  get provider() {
-    return this.config.provider;
+  getArgs({
+    prompt,
+    maxOutputTokens,
+    temperature,
+    topP,
+    frequencyPenalty,
+    presencePenalty,
+    seed,
+    responseFormat,
+    topK,
+    stopSequences,
+    tools,
+    toolChoice
+  }) {
+    const { prompt: completionPrompt } = convertToOpenRouterCompletionPrompt({
+      prompt,
+      inputFormat: "prompt"
+    });
+    if (tools == null ? void 0 : tools.length) {
+      throw new UnsupportedFunctionalityError({
+        functionality: "tools"
+      });
+    }
+    if (toolChoice) {
+      throw new UnsupportedFunctionalityError({
+        functionality: "toolChoice"
+      });
+    }
+    return __spreadValues(__spreadValues({
+      // model id:
+      model: this.modelId,
+      models: this.settings.models,
+      // model specific settings:
+      logit_bias: this.settings.logitBias,
+      logprobs: typeof this.settings.logprobs === "number" ? this.settings.logprobs : typeof this.settings.logprobs === "boolean" ? this.settings.logprobs ? 0 : void 0 : void 0,
+      suffix: this.settings.suffix,
+      user: this.settings.user,
+      // standardized settings:
+      max_tokens: maxOutputTokens,
+      temperature,
+      top_p: topP,
+      frequency_penalty: frequencyPenalty,
+      presence_penalty: presencePenalty,
+      seed,
+      stop: stopSequences,
+      response_format: responseFormat,
+      top_k: topK,
+      // prompt:
+      prompt: completionPrompt,
+      // OpenRouter specific settings:
+      include_reasoning: this.settings.includeReasoning,
+      reasoning: this.settings.reasoning
+    }, this.config.extraBody), this.settings.extraBody);
   }
   async doGenerate(options) {
-    var _a16, _b8, _c;
-    const {
-      prompt,
-      n = 1,
-      size = "1024x1024",
-      aspectRatio = "1:1",
-      seed,
-      providerOptions,
-      headers,
-      abortSignal
-    } = options;
-    const warnings = [];
-    if (size != null) {
-      warnings.push({
-        type: "unsupported-setting",
-        setting: "size",
-        details: "This model does not support the `size` option. Use `aspectRatio` instead."
-      });
-    }
-    if (seed != null) {
-      warnings.push({
-        type: "unsupported-setting",
-        setting: "seed",
-        details: "This model does not support the `seed` option through this provider."
-      });
-    }
-    const googleOptions = await parseProviderOptions({
-      provider: "google",
-      providerOptions,
-      schema: googleImageProviderOptionsSchema
-    });
-    const currentDate = (_c = (_b8 = (_a16 = this.config._internal) == null ? void 0 : _a16.currentDate) == null ? void 0 : _b8.call(_a16)) != null ? _c : /* @__PURE__ */ new Date();
-    const parameters = {
-      sampleCount: n
-    };
-    if (aspectRatio != null) {
-      parameters.aspectRatio = aspectRatio;
-    }
-    if (googleOptions) {
-      Object.assign(parameters, googleOptions);
-    }
-    const body = {
-      instances: [{ prompt }],
-      parameters
-    };
-    const { responseHeaders, value: response } = await postJsonToApi({
-      url: `${this.config.baseURL}/models/${this.modelId}:predict`,
-      headers: combineHeaders(await resolve(this.config.headers), headers),
-      body,
-      failedResponseHandler: googleFailedResponseHandler,
+    var _a152, _b8, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+    const providerOptions = options.providerOptions || {};
+    const openrouterOptions = providerOptions.openrouter || {};
+    const args = __spreadValues(__spreadValues({}, this.getArgs(options)), openrouterOptions);
+    const { value: response, responseHeaders } = await postJsonToApi({
+      url: this.config.url({
+        path: "/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body: args,
+      failedResponseHandler: openrouterFailedResponseHandler,
       successfulResponseHandler: createJsonResponseHandler(
-        googleImageResponseSchema
+        OpenRouterCompletionChunkSchema
       ),
-      abortSignal,
+      abortSignal: options.abortSignal,
       fetch: this.config.fetch
     });
+    if ("error" in response) {
+      throw new Error(`${response.error.message}`);
+    }
+    const choice = response.choices[0];
+    if (!choice) {
+      throw new Error("No choice in OpenRouter completion response");
+    }
     return {
-      images: response.predictions.map(
-        (p) => p.bytesBase64Encoded
-      ),
-      warnings: warnings != null ? warnings : [],
-      providerMetadata: {
-        google: {
-          images: response.predictions.map((prediction) => ({
-            // Add any prediction-specific metadata here
-          }))
+      content: [
+        {
+          type: "text",
+          text: (_a152 = choice.text) != null ? _a152 : ""
         }
+      ],
+      finishReason: mapOpenRouterFinishReason(choice.finish_reason),
+      usage: {
+        inputTokens: (_c = (_b8 = response.usage) == null ? void 0 : _b8.prompt_tokens) != null ? _c : 0,
+        outputTokens: (_e = (_d = response.usage) == null ? void 0 : _d.completion_tokens) != null ? _e : 0,
+        totalTokens: ((_g = (_f = response.usage) == null ? void 0 : _f.prompt_tokens) != null ? _g : 0) + ((_i = (_h = response.usage) == null ? void 0 : _h.completion_tokens) != null ? _i : 0),
+        reasoningTokens: (_l = (_k = (_j = response.usage) == null ? void 0 : _j.completion_tokens_details) == null ? void 0 : _k.reasoning_tokens) != null ? _l : 0,
+        cachedInputTokens: (_o = (_n = (_m = response.usage) == null ? void 0 : _m.prompt_tokens_details) == null ? void 0 : _n.cached_tokens) != null ? _o : 0
       },
+      warnings: [],
       response: {
-        timestamp: currentDate,
-        modelId: this.modelId,
+        headers: responseHeaders
+      }
+    };
+  }
+  async doStream(options) {
+    const providerOptions = options.providerOptions || {};
+    const openrouterOptions = providerOptions.openrouter || {};
+    const args = __spreadValues(__spreadValues({}, this.getArgs(options)), openrouterOptions);
+    const { value: response, responseHeaders } = await postJsonToApi({
+      url: this.config.url({
+        path: "/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body: __spreadProps(__spreadValues({}, args), {
+        stream: true,
+        // only include stream_options when in strict compatibility mode:
+        stream_options: this.config.compatibility === "strict" ? { include_usage: true } : void 0
+      }),
+      failedResponseHandler: openrouterFailedResponseHandler,
+      successfulResponseHandler: createEventSourceResponseHandler(
+        OpenRouterCompletionChunkSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    let finishReason = "other";
+    const usage = {
+      inputTokens: Number.NaN,
+      outputTokens: Number.NaN,
+      totalTokens: Number.NaN,
+      reasoningTokens: Number.NaN,
+      cachedInputTokens: Number.NaN
+    };
+    const openrouterUsage = {};
+    return {
+      stream: response.pipeThrough(
+        new TransformStream({
+          transform(chunk, controller) {
+            var _a152, _b8;
+            if (!chunk.success) {
+              finishReason = "error";
+              controller.enqueue({ type: "error", error: chunk.error });
+              return;
+            }
+            const value = chunk.value;
+            if ("error" in value) {
+              finishReason = "error";
+              controller.enqueue({ type: "error", error: value.error });
+              return;
+            }
+            if (value.usage != null) {
+              usage.inputTokens = value.usage.prompt_tokens;
+              usage.outputTokens = value.usage.completion_tokens;
+              usage.totalTokens = value.usage.prompt_tokens + value.usage.completion_tokens;
+              openrouterUsage.promptTokens = value.usage.prompt_tokens;
+              if (value.usage.prompt_tokens_details) {
+                const cachedInputTokens = (_a152 = value.usage.prompt_tokens_details.cached_tokens) != null ? _a152 : 0;
+                usage.cachedInputTokens = cachedInputTokens;
+                openrouterUsage.promptTokensDetails = {
+                  cachedTokens: cachedInputTokens
+                };
+              }
+              openrouterUsage.completionTokens = value.usage.completion_tokens;
+              if (value.usage.completion_tokens_details) {
+                const reasoningTokens = (_b8 = value.usage.completion_tokens_details.reasoning_tokens) != null ? _b8 : 0;
+                usage.reasoningTokens = reasoningTokens;
+                openrouterUsage.completionTokensDetails = {
+                  reasoningTokens
+                };
+              }
+              openrouterUsage.cost = value.usage.cost;
+              openrouterUsage.totalTokens = value.usage.total_tokens;
+            }
+            const choice = value.choices[0];
+            if ((choice == null ? void 0 : choice.finish_reason) != null) {
+              finishReason = mapOpenRouterFinishReason(choice.finish_reason);
+            }
+            if ((choice == null ? void 0 : choice.text) != null) {
+              controller.enqueue({
+                type: "text-delta",
+                delta: choice.text,
+                id: generateId()
+              });
+            }
+          },
+          flush(controller) {
+            controller.enqueue({
+              type: "finish",
+              finishReason,
+              usage,
+              providerMetadata: {
+                openrouter: {
+                  usage: openrouterUsage
+                }
+              }
+            });
+          }
+        })
+      ),
+      response: {
         headers: responseHeaders
       }
     };
   }
 };
-var googleImageResponseSchema = object$1({
-  predictions: array(object$1({ bytesBase64Encoded: string() })).default([])
-});
-var googleImageProviderOptionsSchema = object$1({
-  personGeneration: _enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
-  aspectRatio: _enum(["1:1", "3:4", "4:3", "9:16", "16:9"]).nullish()
-});
-function createGoogleGenerativeAI(options = {}) {
-  var _a16;
-  const baseURL = (_a16 = withoutTrailingSlash(options.baseURL)) != null ? _a16 : "https://generativelanguage.googleapis.com/v1beta";
-  const getHeaders = () => ({
-    "x-goog-api-key": loadApiKey({
+function createOpenRouter(options = {}) {
+  var _a152, _b8, _c;
+  const baseURL = (_b8 = withoutTrailingSlash((_a152 = options.baseURL) != null ? _a152 : options.baseUrl)) != null ? _b8 : "https://openrouter.ai/api/v1";
+  const compatibility = (_c = options.compatibility) != null ? _c : "compatible";
+  const getHeaders = () => __spreadValues({
+    Authorization: `Bearer ${loadApiKey({
       apiKey: options.apiKey,
-      environmentVariableName: "GOOGLE_GENERATIVE_AI_API_KEY",
-      description: "Google Generative AI"
-    }),
-    ...options.headers
-  });
-  const createChatModel = (modelId) => {
-    var _a22;
-    return new GoogleGenerativeAILanguageModel(modelId, {
-      provider: "google.generative-ai",
-      baseURL,
-      headers: getHeaders,
-      generateId: (_a22 = options.generateId) != null ? _a22 : generateId,
-      supportedUrls: () => ({
-        "*": [
-          // Google Generative Language "files" endpoint
-          // e.g. https://generativelanguage.googleapis.com/v1beta/files/...
-          new RegExp(`^${baseURL}/files/.*$`),
-          // YouTube URLs (public or unlisted videos)
-          new RegExp(
-            `^https://(?:www\\.)?youtube\\.com/watch\\?v=[\\w-]+(?:&[\\w=&.-]*)?$`
-          ),
-          new RegExp(`^https://youtu\\.be/[\\w-]+(?:\\?[\\w=&.-]*)?$`)
-        ]
-      }),
-      fetch: options.fetch
-    });
-  };
-  const createEmbeddingModel = (modelId) => new GoogleGenerativeAIEmbeddingModel(modelId, {
-    provider: "google.generative-ai",
-    baseURL,
+      environmentVariableName: "OPENROUTER_API_KEY",
+      description: "OpenRouter"
+    })}`
+  }, options.headers);
+  const createChatModel = (modelId, settings = {}) => new OpenRouterChatLanguageModel(modelId, settings, {
+    provider: "openrouter.chat",
+    url: ({ path: path2 }) => `${baseURL}${path2}`,
     headers: getHeaders,
-    fetch: options.fetch
+    compatibility,
+    fetch: options.fetch,
+    extraBody: options.extraBody
   });
-  const createImageModel = (modelId, settings = {}) => new GoogleGenerativeAIImageModel(modelId, settings, {
-    provider: "google.generative-ai",
-    baseURL,
+  const createCompletionModel = (modelId, settings = {}) => new OpenRouterCompletionLanguageModel(modelId, settings, {
+    provider: "openrouter.completion",
+    url: ({ path: path2 }) => `${baseURL}${path2}`,
     headers: getHeaders,
-    fetch: options.fetch
+    compatibility,
+    fetch: options.fetch,
+    extraBody: options.extraBody
   });
-  const provider = function(modelId) {
+  const createLanguageModel = (modelId, settings) => {
     if (new.target) {
       throw new Error(
-        "The Google Generative AI model function cannot be called with the new keyword."
+        "The OpenRouter model function cannot be called with the new keyword."
       );
     }
-    return createChatModel(modelId);
+    if (modelId === "openai/gpt-3.5-turbo-instruct") {
+      return createCompletionModel(
+        modelId,
+        settings
+      );
+    }
+    return createChatModel(modelId, settings);
   };
-  provider.languageModel = createChatModel;
+  const provider = (modelId, settings) => createLanguageModel(modelId, settings);
+  provider.languageModel = createLanguageModel;
   provider.chat = createChatModel;
-  provider.generativeAI = createChatModel;
-  provider.embedding = createEmbeddingModel;
-  provider.textEmbedding = createEmbeddingModel;
-  provider.textEmbeddingModel = createEmbeddingModel;
-  provider.image = createImageModel;
-  provider.imageModel = createImageModel;
-  provider.tools = googleTools;
+  provider.completion = createCompletionModel;
   return provider;
 }
-var google = createGoogleGenerativeAI();
+createOpenRouter({
+  compatibility: "strict"
+  // strict for OpenRouter API
+});
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
 }
@@ -12924,6 +13613,13 @@ async function takeScreenshot() {
   }
 }
 dotenv.config();
+const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+if (!openRouterApiKey) {
+  throw new Error("Missing OPENROUTER_API_KEY environment variable. Please set it in your .env file.");
+}
+const openrouter = createOpenRouter({
+  apiKey: openRouterApiKey
+});
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 try {
   app.commandLine.appendSwitch("remote-debugging-port", "9222");
@@ -13014,7 +13710,7 @@ ipcMain.handle("ai-query", async (event, { query }) => {
 - Bank of Canada/BoC -> https://www.bankofcanada.ca
 - Government of Canada/Canada.ca -> https://www.canada.ca
 - The Verge -> https://www.theverge.com`;
-    console.log("Calling Gemini with query...");
+    console.log("Calling OpenRouter Grok with query...");
     const enhancedPrompt = `${query}
 
 记住：你必须执行以下步骤：
@@ -13024,8 +13720,7 @@ ipcMain.handle("ai-query", async (event, { query }) => {
 
 不要跳过任何步骤！`;
     const result = await generateText({
-      model: google("gemini-2.5-flash"),
-      // Use 2.5 Flash with thinking
+      model: openrouter.chat("x-ai/grok-4-fast:free"),
       system: systemPrompt,
       prompt: enhancedPrompt,
       tools: { navigate, readPage },

@@ -2,12 +2,22 @@ import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { streamText, generateText, tool, jsonSchema, stepCountIs } from 'ai';
-import { google } from '@ai-sdk/google';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 import { navigateTo, getPageContent, getPageTitle, getPageURL, takeScreenshot } from './browser-controller';
 
 dotenv.config();
+
+const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+
+if (!openRouterApiKey) {
+  throw new Error('Missing OPENROUTER_API_KEY environment variable. Please set it in your .env file.');
+}
+
+const openrouter = createOpenRouter({
+  apiKey: openRouterApiKey
+});
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -114,14 +124,14 @@ ipcMain.handle('ai-query', async (event: IpcMainInvokeEvent, { query }: { query:
 - The Verge -> https://www.theverge.com`;
 
 
-    console.log('Calling Gemini with query...');
+    console.log('Calling OpenRouter Grok with query...');
 
     // Enhanced prompt to ensure multi-step execution
     const enhancedPrompt: string = `${query}\n\n记住：你必须执行以下步骤：\n1. 使用 navigate 工具打开网页\n2. 使用 readPage 工具读取页面内容\n3. 基于读取的内容生成总结\n\n不要跳过任何步骤！`;
 
     // Use generateText for better debugging
     const result = await generateText({
-      model: google('gemini-2.5-flash'), // Use 2.5 Flash with thinking
+      model: openrouter.chat('x-ai/grok-4-fast:free'),
       system: systemPrompt,
       prompt: enhancedPrompt,
       tools: { navigate, readPage },
