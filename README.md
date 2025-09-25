@@ -2,6 +2,14 @@
 
 這是來自 [PathUnfold.com](https://www.pathunfold.com/mike) 的課程專案 - 一個 AI 驱動的學習社群。
 
+## 不同阶段的 Commits
+
+- Session 3: TypeScript rewrite: <https://github.com/MikeBets/ai-browser-v3/commit/fd509a22d5e80f83eb551c902ee87ea8a1805dbe>
+
+- Session 4: OpenRouter: <https://github.com/MikeBets/ai-browser-v3/commit/f15cbc8a6f1c61acad3dc5522bb16233857d5cf8>
+
+- Session 5: Streamdown for markdown: <https://github.com/MikeBets/ai-browser-v3>
+
 ## 關於這門課程
 
 這個專案是 Mike 在 PathUnfold 獨家課程內容的一部分。Mike 是共同創辦人，來自加拿大的知名開發者，專注於幫助普通人運用 AI 透過「vibe coding」將想法快速落地。
