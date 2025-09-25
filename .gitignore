@@ -2,3 +2,4 @@ logs/security/.security-key
 node_modules/
 
 logs/security/*
+ai-browser/out

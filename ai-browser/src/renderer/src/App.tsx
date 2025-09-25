@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { WebviewTag } from 'electron';
+import { Streamdown } from 'streamdown';
 import './style.css';
 
 // --- Type Definitions ---
@@ -366,7 +367,13 @@ function App() {
               <span className="message-label">
                 {msg.type === 'user' ? '👤 您：' : '🤖 助手：'}
               </span>
-              <span className="message-content">{msg.content}</span>
+              {msg.type === 'assistant' ? (
+                <Streamdown className="message-content streamdown-content">
+                  {msg.content || ''}
+                </Streamdown>
+              ) : (
+                <span className="message-content">{msg.content}</span>
+              )}
             </div>
           ))}
           <div ref={chatEndRef} />

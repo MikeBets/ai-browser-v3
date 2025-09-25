@@ -219,6 +219,42 @@ body {
   line-height: 1.5;
 }
 
+.streamdown-content {
+  display: block;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  word-wrap: break-word;
+}
+
+.streamdown-content pre {
+  background: #1f2933;
+  color: #f8fafc;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 13px;
+}
+
+.streamdown-content code {
+  background: rgba(15, 23, 42, 0.08);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.streamdown-content ul,
+.streamdown-content ol {
+  margin: 8px 0 8px 18px;
+}
+
+.streamdown-content blockquote {
+  margin: 10px 0;
+  padding-left: 12px;
+  border-left: 3px solid #6c757d;
+  color: #555;
+}
+
 .response {
   flex: 1;
   padding: 15px;
