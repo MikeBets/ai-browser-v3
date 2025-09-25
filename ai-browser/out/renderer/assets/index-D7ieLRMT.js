@@ -12067,19 +12067,14 @@ function App() {
   reactExports.useEffect(() => {
     const webview = webviewRef.current;
     if (!webview) return;
-    const handleReady = () => {
-      console.log("Webview 已准备就绪");
-    };
+    const handleReady = () => console.log("Webview 已准备就绪");
     const handleStartLoading = () => {
     };
     const handleStopLoading = () => {
     };
     const handleFailLoad = (e) => {
       console.error("加载失败:", e);
-      setChatHistory((prev) => [...prev, {
-        type: "assistant",
-        content: `❌ 页面加载失败`
-      }]);
+      setChatHistory((prev) => [...prev, { type: "assistant", content: `❌ 页面加载失败` }]);
     };
     const handleNewWindow = (e) => {
       e.preventDefault();
@@ -12109,10 +12104,7 @@ function App() {
     const webview = webviewRef.current;
     if (!webview) return "";
     try {
-      const content = await webview.executeJavaScript(`
-        document.body ? document.body.innerText.substring(0, 2000) : ''
-      `);
-      return content;
+      return await webview.executeJavaScript(`document.body ? document.body.innerText.substring(0, 2000) : ''`);
     } catch (error) {
       console.error("Failed to get page content:", error);
       return "";
@@ -12142,11 +12134,8 @@ function App() {
     recognition.onerror = (event) => {
       console.error("语音识别错误:", event.error);
       setIsRecording(false);
-      if (event.error === "no-speech") {
-        alert("未检测到语音，请重试");
-      } else if (event.error === "not-allowed") {
-        alert("请允许使用麦克风");
-      }
+      if (event.error === "no-speech") alert("未检测到语音，请重试");
+      else if (event.error === "not-allowed") alert("请允许使用麦克风");
     };
     recognition.onend = () => {
       setIsRecording(false);
@@ -12197,6 +12186,9 @@ function App() {
         case "extract":
         case "answer":
           assistantResponse = aiResponse.content || "暂无响应";
+          if (aiResponse.url && aiResponse.url !== currentUrl) {
+            loadSite(aiResponse.url);
+          }
           break;
         default:
           assistantResponse = aiResponse.content || JSON.stringify(aiResponse);
@@ -12206,24 +12198,17 @@ function App() {
       }
       setQuery("");
     } catch (error) {
-      setChatHistory((prev) => [...prev, {
-        type: "assistant",
-        content: "❌ 错误：命令处理失败"
-      }]);
+      setChatHistory((prev) => [...prev, { type: "assistant", content: "❌ 错误：命令处理失败" }]);
       console.error("查询错误:", error);
     } finally {
       setLoading(false);
     }
   };
   const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !loading) {
-      sendQuery();
-    }
+    if (e.key === "Enter" && !loading) sendQuery();
   };
   const handleUrlKeyPress = (e) => {
-    if (e.key === "Enter") {
-      loadSite(url);
-    }
+    if (e.key === "Enter") loadSite(url);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "browser", children: [
@@ -12259,7 +12244,7 @@ function App() {
           src: url,
           partition: "persist:browser",
           webpreferences: "contextIsolation=false, nodeIntegration=false",
-          allowpopups: "true"
+          allowpopups: true
         }
       )
     ] }),
@@ -12298,6 +12283,11 @@ function App() {
     ] })
   ] });
 }
-ReactDOM.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
-);
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  ReactDOM.createRoot(rootElement).render(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
+  );
+} else {
+  throw new Error("Fatal: Could not find root element with ID 'root' to mount the React app.");
+}

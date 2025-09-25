@@ -1,11 +1,11 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { streamText, generateText, tool, jsonSchema, stepCountIs } from 'ai';
 import { google } from '@ai-sdk/google';
 import dotenv from 'dotenv';
 import { z } from 'zod';
-import { navigateTo, getPageContent, getPageTitle, getPageURL, takeScreenshot } from './browser-controller.js';
+import { navigateTo, getPageContent, getPageTitle, getPageURL, takeScreenshot } from './browser-controller';
 
 dotenv.config();
 
@@ -16,7 +16,7 @@ try {
   app.commandLine.appendSwitch('remote-debugging-port', '9222');
 } catch {}
 
-function createWindow() {
+function createWindow(): void {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -39,11 +39,11 @@ function createWindow() {
 }
 
 // Handle AI Agent queries with multi-step tools
-ipcMain.handle('ai-query', async (event, { query }) => {
+ipcMain.handle('ai-query', async (event: IpcMainInvokeEvent, { query }: { query: string }): Promise<string> => {
   console.log('AI Query received:', query);
   try {
     // Define tools the model can call in multiple steps
-    let lastNavigatedUrl = '';
+    let lastNavigatedUrl: string = '';
 
     const navigate = tool({
       description: '打开或跳转到指定网页（仅支持 http/https）。',
@@ -55,13 +55,13 @@ ipcMain.handle('ai-query', async (event, { query }) => {
         required: ['url'],
         additionalProperties: false
       }),
-      execute: async ({ url }) => {
+      execute: async ({ url }: { url: string }) => {
         console.log('Tool: navigate called with URL:', url);
-        // Basic URL guard
-        if (!/^https?:\/\//i.test(url)) {
-          url = `https://${url}`;
-        }
-        lastNavigatedUrl = await navigateTo(url);
+        // More robust URL cleaning
+        const cleanUrl = url.replace(/^(https?:\/\/)+/, '');
+        const finalUrl = `https://${cleanUrl}`;
+
+        lastNavigatedUrl = await navigateTo(finalUrl);
         const title = await getPageTitle();
         console.log('Navigate result:', { url: lastNavigatedUrl, title });
         return { ok: true, url: await getPageURL(), title };
@@ -86,7 +86,7 @@ ipcMain.handle('ai-query', async (event, { query }) => {
     });
 
     // System guidance for multi-step behavior
-    const systemPrompt = `你是一个"AI 浏览器"代理。你必须按以下步骤处理用户请求：
+    const systemPrompt: string = `你是一个"AI 浏览器"代理。你必须按以下步骤处理用户请求：
 
 重要规则：
 - 当用户要求"打开X并总结"时，你必须执行两个步骤：
@@ -117,14 +117,7 @@ ipcMain.handle('ai-query', async (event, { query }) => {
     console.log('Calling Gemini with query...');
 
     // Enhanced prompt to ensure multi-step execution
-    const enhancedPrompt = `${query}
-
-记住：你必须执行以下步骤：
-1. 使用 navigate 工具打开网页
-2. 使用 readPage 工具读取页面内容
-3. 基于读取的内容生成总结
-
-不要跳过任何步骤！`;
+    const enhancedPrompt: string = `${query}\n\n记住：你必须执行以下步骤：\n1. 使用 navigate 工具打开网页\n2. 使用 readPage 工具读取页面内容\n3. 基于读取的内容生成总结\n\n不要跳过任何步骤！`;
 
     // Use generateText for better debugging
     const result = await generateText({
@@ -158,14 +151,14 @@ ipcMain.handle('ai-query', async (event, { query }) => {
     const finalText = result.text || '';
     // Return as prior protocol for renderer compatibility
     return JSON.stringify({ action: 'answer', content: finalText, url: lastNavigatedUrl || (await getPageURL()) || '' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('AI Agent Error:', error);
     return JSON.stringify({ action: 'answer', content: '❌ 发生错误：处理失败，请稍后重试。' });
   }
 });
 
 // Handle browser navigation
-ipcMain.handle('navigate-browser', async (event, url) => {
+ipcMain.handle('navigate-browser', async (event: IpcMainInvokeEvent, url: string) => {
   try {
     await navigateTo(url);
     const content = await getPageContent();
@@ -180,14 +173,14 @@ ipcMain.handle('navigate-browser', async (event, url) => {
       content,
       screenshot: screenshot // Already converted to dataURL in takeScreenshot()
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Navigation error:', error);
     return { success: false, error: error.message };
   }
 });
 
 // Get current browser state
-ipcMain.handle('get-browser-state', async () => {
+ipcMain.handle('get-browser-state', async (event: IpcMainInvokeEvent) => {
   try {
     const content = await getPageContent();
     const title = await getPageTitle();
@@ -198,7 +191,7 @@ ipcMain.handle('get-browser-state', async () => {
       title,
       content
     };
-  } catch (error) {
+  } catch (error: any) {
     return { url: '', title: '', content: '' };
   }
 });

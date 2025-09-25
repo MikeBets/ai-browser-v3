@@ -12964,10 +12964,9 @@ ipcMain.handle("ai-query", async (event, { query }) => {
       }),
       execute: async ({ url }) => {
         console.log("Tool: navigate called with URL:", url);
-        if (!/^https?:\/\//i.test(url)) {
-          url = `https://${url}`;
-        }
-        lastNavigatedUrl = await navigateTo(url);
+        const cleanUrl = url.replace(/^(https?:\/\/)+/, "");
+        const finalUrl = `https://${cleanUrl}`;
+        lastNavigatedUrl = await navigateTo(finalUrl);
         const title = await getPageTitle();
         console.log("Navigate result:", { url: lastNavigatedUrl, title });
         return { ok: true, url: await getPageURL(), title };
@@ -13077,7 +13076,7 @@ ipcMain.handle("navigate-browser", async (event, url) => {
     return { success: false, error: error.message };
   }
 });
-ipcMain.handle("get-browser-state", async () => {
+ipcMain.handle("get-browser-state", async (event) => {
   try {
     const content = await getPageContent();
     const title = await getPageTitle();

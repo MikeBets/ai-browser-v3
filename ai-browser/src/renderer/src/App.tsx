@@ -1,20 +1,55 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import type { WebviewTag } from 'electron';
 import './style.css';
 
+// --- Type Definitions ---
+
+interface ChatMessage {
+  type: 'user' | 'assistant';
+  content: string;
+}
+
+interface Site {
+  name: string;
+  url: string;
+}
+
+interface AiResponse {
+  action: 'navigate' | 'search' | 'summarize' | 'extract' | 'answer' | string;
+  content?: string;
+  url?: string;
+  query?: string;
+}
+
+// Define types for the API exposed by the preload script
+declare global {
+  interface Window {
+    api: {
+      sendQuery: (query: string, pageContent: string, currentUrl: string) => Promise<string>;
+      navigateBrowser: (url: string) => Promise<any>;
+      getBrowserState: () => Promise<any>;
+    };
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
+// --- Component ---
+
 function App() {
-  const [url, setUrl] = useState('https://www.google.com');
-  const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [chatHistory, setChatHistory] = useState([
+  const [url, setUrl] = useState<string>('https://www.google.com');
+  const [query, setQuery] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     { type: 'assistant', content: '💬 准备好帮助您浏览网页了！' }
   ]);
-  const webviewRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const chatEndRef = useRef(null);
 
-  // 热门网站
-  const newsSites = [
+  const webviewRef = useRef<WebviewTag | null>(null);
+  const mediaRecorderRef = useRef<any | null>(null); // SpeechRecognition type can be complex
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  const newsSites: Site[] = [
     { name: '谷歌', url: 'https://www.google.com' },
     { name: '百度', url: 'https://www.baidu.com' },
     { name: '知乎', url: 'https://www.zhihu.com' },
@@ -25,44 +60,28 @@ function App() {
     { name: '抖音', url: 'https://www.douyin.com' }
   ];
 
-  // Initialize webview when component mounts
   useEffect(() => {
     const webview = webviewRef.current;
     if (!webview) return;
 
-    const handleReady = () => {
-      console.log('Webview 已准备就绪');
-    };
-
-    const handleStartLoading = () => {
-      // 可以在状态栏显示，现在用聊天历史替代
-    };
-
-    const handleStopLoading = () => {
-      // 页面加载完成
-    };
-
-    const handleFailLoad = (e) => {
+    const handleReady = () => console.log('Webview 已准备就绪');
+    const handleStartLoading = () => {};
+    const handleStopLoading = () => {};
+    const handleFailLoad = (e: any) => {
       console.error('加载失败:', e);
-      setChatHistory(prev => [...prev, { 
-        type: 'assistant', 
-        content: `❌ 页面加载失败` 
-      }]);
+      setChatHistory(prev => [...prev, { type: 'assistant', content: `❌ 页面加载失败` }]);
     };
-
-    const handleNewWindow = (e) => {
+    const handleNewWindow = (e: any) => {
       e.preventDefault();
       loadSite(e.url);
     };
 
-    // Set up webview event listeners
     webview.addEventListener('dom-ready', handleReady);
     webview.addEventListener('did-start-loading', handleStartLoading);
     webview.addEventListener('did-stop-loading', handleStopLoading);
     webview.addEventListener('did-fail-load', handleFailLoad);
     webview.addEventListener('new-window', handleNewWindow);
 
-    // Cleanup
     return () => {
       webview.removeEventListener('dom-ready', handleReady);
       webview.removeEventListener('did-start-loading', handleStartLoading);
@@ -72,8 +91,7 @@ function App() {
     };
   }, []);
 
-  // Navigate to a website
-  const loadSite = (siteUrl) => {
+  const loadSite = (siteUrl: string): void => {
     setUrl(siteUrl);
     const webview = webviewRef.current;
     if (webview) {
@@ -81,29 +99,22 @@ function App() {
     }
   };
 
-  // Get page content from webview
-  const getPageContent = async () => {
+  const getPageContent = async (): Promise<string> => {
     const webview = webviewRef.current;
     if (!webview) return '';
-    
     try {
-      const content = await webview.executeJavaScript(`
-        document.body ? document.body.innerText.substring(0, 2000) : ''
-      `);
-      return content;
+      return await webview.executeJavaScript(`document.body ? document.body.innerText.substring(0, 2000) : ''`);
     } catch (error) {
       console.error('Failed to get page content:', error);
       return '';
     }
   };
 
-  // 自动滚动到聊天历史底部
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
 
-  // 开始录音（使用Web Speech API）
-  const startRecording = () => {
+  const startRecording = (): void => {
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       alert('您的浏览器不支持语音识别功能');
       return;
@@ -112,7 +123,7 @@ function App() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     
-    recognition.lang = 'zh-CN'; // 设置为中文
+    recognition.lang = 'zh-CN';
     recognition.continuous = false;
     recognition.interimResults = true;
 
@@ -121,26 +132,22 @@ function App() {
       setQuery('');
     };
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: any) => {
       const transcript = Array.from(event.results)
-        .map(result => result[0].transcript)
+        .map((result: any) => result[0].transcript)
         .join('');
       setQuery(transcript);
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: any) => {
       console.error('语音识别错误:', event.error);
       setIsRecording(false);
-      if (event.error === 'no-speech') {
-        alert('未检测到语音，请重试');
-      } else if (event.error === 'not-allowed') {
-        alert('请允许使用麦克风');
-      }
+      if (event.error === 'no-speech') alert('未检测到语音，请重试');
+      else if (event.error === 'not-allowed') alert('请允许使用麦克风');
     };
 
     recognition.onend = () => {
       setIsRecording(false);
-      // 如果有识别结果，自动发送
       if (query.trim()) {
         sendQuery();
       }
@@ -150,22 +157,18 @@ function App() {
     recognition.start();
   };
 
-  // 停止录音
-  const stopRecording = () => {
+  const stopRecording = (): void => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
   };
 
-  // 发送AI查询
-  const sendQuery = async () => {
+  const sendQuery = async (): Promise<void> => {
     if (!query.trim()) return;
     
-    // 添加用户消息到历史
-    const userMessage = { type: 'user', content: query };
+    const userMessage: ChatMessage = { type: 'user', content: query };
     setChatHistory(prev => [...prev, userMessage]);
-    
     setLoading(true);
     
     try {
@@ -173,15 +176,13 @@ function App() {
       const currentUrl = webviewRef.current?.src || url;
       const result = await window.api.sendQuery(query, pageContent, currentUrl);
       
-      // Parse AI response
-      let aiResponse;
+      let aiResponse: AiResponse;
       try {
         aiResponse = JSON.parse(result);
       } catch {
         aiResponse = { action: 'answer', content: result };
       }
       
-      // 处理不同的AI动作
       let assistantResponse = '';
       switch (aiResponse.action) {
         case 'navigate':
@@ -190,7 +191,6 @@ function App() {
             loadSite(aiResponse.url);
           }
           break;
-          
         case 'search':
           if (aiResponse.query) {
             const searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(aiResponse.query)}`;
@@ -198,50 +198,38 @@ function App() {
             loadSite(searchUrl);
           }
           break;
-          
         case 'summarize':
         case 'extract':
         case 'answer':
           assistantResponse = aiResponse.content || '暂无响应';
-          // 如果 AI 导航到了新页面，同步更新前端 webview
           if (aiResponse.url && aiResponse.url !== currentUrl) {
             loadSite(aiResponse.url);
           }
           break;
-          
         default:
           assistantResponse = aiResponse.content || JSON.stringify(aiResponse);
       }
       
-      // 添加助手响应到历史
       if (assistantResponse) {
         setChatHistory(prev => [...prev, { type: 'assistant', content: assistantResponse }]);
       }
       
-      // Clear query after successful execution
       setQuery('');
       
-    } catch (error) {
-      setChatHistory(prev => [...prev, { 
-        type: 'assistant', 
-        content: '❌ 错误：命令处理失败' 
-      }]);
+    } catch (error: any) {
+      setChatHistory(prev => [...prev, { type: 'assistant', content: '❌ 错误：命令处理失败' }]);
       console.error('查询错误:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !loading) {
-      sendQuery();
-    }
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !loading) sendQuery();
   };
 
-  const handleUrlKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      loadSite(url);
-    }
+  const handleUrlKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') loadSite(url);
   };
 
   return (
@@ -263,13 +251,11 @@ function App() {
           <input
             type="text"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
             placeholder="输入网址..."
             onKeyDown={handleUrlKeyPress}
           />
-          <button onClick={() => loadSite(url)}>
-            前往
-          </button>
+          <button onClick={() => loadSite(url)}>前往</button>
         </div>
         <webview 
           ref={webviewRef}
@@ -278,7 +264,7 @@ function App() {
           src={url}
           partition="persist:browser"
           webpreferences="contextIsolation=false, nodeIntegration=false"
-          allowpopups="true"
+          allowpopups
         />
       </div>
       <div className="ai-panel">
@@ -298,7 +284,7 @@ function App() {
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
             placeholder="输入命令或问题..."
             onKeyDown={handleKeyPress}
             disabled={loading || isRecording}

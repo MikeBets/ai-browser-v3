@@ -1,8 +1,8 @@
 import { BrowserWindow } from 'electron';
 
-let browserWindow = null;
+let browserWindow: BrowserWindow | null = null;
 
-export function createBrowserWindow() {
+export function createBrowserWindow(): BrowserWindow {
   if (browserWindow) return browserWindow;
   
   browserWindow = new BrowserWindow({
@@ -25,7 +25,7 @@ export function createBrowserWindow() {
   return browserWindow;
 }
 
-export async function navigateTo(url) {
+export async function navigateTo(url: string): Promise<string> {
   if (!browserWindow) {
     browserWindow = createBrowserWindow();
   }
@@ -35,13 +35,13 @@ export async function navigateTo(url) {
     // Wait for page to load
     await new Promise(resolve => setTimeout(resolve, 2000));
     return url;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to navigate:', error);
     throw error;
   }
 }
 
-export async function getPageContent() {
+export async function getPageContent(): Promise<string> {
   if (!browserWindow) return '';
   
   const content = await browserWindow.webContents.executeJavaScript(`
@@ -51,23 +51,23 @@ export async function getPageContent() {
   return content;
 }
 
-export async function getPageTitle() {
+export async function getPageTitle(): Promise<string> {
   if (!browserWindow) return '';
   return browserWindow.webContents.getTitle();
 }
 
-export async function getPageURL() {
+export async function getPageURL(): Promise<string> {
   if (!browserWindow) return '';
   return browserWindow.webContents.getURL();
 }
 
-export async function takeScreenshot() {
+export async function takeScreenshot(): Promise<string | null> {
   if (!browserWindow) return null;
   
   try {
     const image = await browserWindow.webContents.capturePage();
     return image.toDataURL();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to take screenshot:', error);
     return null;
   }
