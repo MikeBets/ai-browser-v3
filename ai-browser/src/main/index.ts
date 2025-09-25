@@ -1,10 +1,11 @@
 import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { streamText, generateText, tool, jsonSchema, stepCountIs } from 'ai';
+import { streamText, tool, jsonSchema, stepCountIs } from 'ai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import dotenv from 'dotenv';
 import { z } from 'zod';
+import { randomUUID } from 'crypto';
 import { navigateTo, getPageContent, getPageTitle, getPageURL, takeScreenshot } from './browser-controller';
 
 dotenv.config();
@@ -49,11 +50,16 @@ function createWindow(): void {
 }
 
 // Handle AI Agent queries with multi-step tools
-ipcMain.handle('ai-query', async (event: IpcMainInvokeEvent, { query }: { query: string }): Promise<string> => {
+ipcMain.handle('ai-query', async (
+  event: IpcMainInvokeEvent,
+  { query, requestId }: { query: string; requestId?: string }
+): Promise<string> => {
   console.log('AI Query received:', query);
+  const resolvedRequestId = requestId ?? randomUUID();
+  let lastNavigatedUrl = '';
+
   try {
     // Define tools the model can call in multiple steps
-    let lastNavigatedUrl: string = '';
 
     const navigate = tool({
       description: '打开或跳转到指定网页（仅支持 http/https）。',
@@ -129,8 +135,9 @@ ipcMain.handle('ai-query', async (event: IpcMainInvokeEvent, { query }: { query:
     // Enhanced prompt to ensure multi-step execution
     const enhancedPrompt: string = `${query}\n\n记住：你必须执行以下步骤：\n1. 使用 navigate 工具打开网页\n2. 使用 readPage 工具读取页面内容\n3. 基于读取的内容生成总结\n\n不要跳过任何步骤！`;
 
-    // Use generateText for better debugging
-    const result = await generateText({
+    event.sender.send('ai-query-stream-start', { requestId: resolvedRequestId });
+
+    const result = streamText({
       model: openrouter.chat('x-ai/grok-4-fast:free'),
       system: systemPrompt,
       prompt: enhancedPrompt,
@@ -138,31 +145,44 @@ ipcMain.handle('ai-query', async (event: IpcMainInvokeEvent, { query }: { query:
       toolChoice: 'auto',
       maxTokens: 800,
       maxSteps: 10,
-      stopWhen: stepCountIs(10) // Explicitly enable multi-step
+      stopWhen: stepCountIs(10)
     });
 
-    console.log('Result object:', {
-      text: result.text,
-      toolCalls: result.toolCalls?.length || 0,
-      steps: result.steps?.length || 0,
-      usage: result.usage
-    });
+    let finalText = '';
 
-    // Log each step
-    if (result.steps) {
-      result.steps.forEach((step, i) => {
-        console.log(`Step ${i + 1}:`, {
-          toolCalls: step.toolCalls?.map(tc => ({ name: tc.toolName, args: tc.args })),
-          text: step.text?.substring(0, 100)
-        });
-      });
+    for await (const delta of result.textStream) {
+      if (!delta) continue;
+      finalText += delta;
+      event.sender.send('ai-query-stream-chunk', { requestId: resolvedRequestId, delta });
     }
 
-    const finalText = result.text || '';
-    // Return as prior protocol for renderer compatibility
-    return JSON.stringify({ action: 'answer', content: finalText, url: lastNavigatedUrl || (await getPageURL()) || '' });
+    const steps = await result.steps;
+    const usage = await result.totalUsage;
+
+    console.log('Stream completed:', {
+      textLength: finalText.length,
+      stepCount: steps?.length || 0,
+      usage
+    });
+
+    const finalPayload = {
+      action: 'answer',
+      content: finalText,
+      url: lastNavigatedUrl || (await getPageURL()) || ''
+    };
+
+    event.sender.send('ai-query-stream-end', {
+      requestId: resolvedRequestId,
+      response: finalPayload
+    });
+
+    return JSON.stringify(finalPayload);
   } catch (error: any) {
     console.error('AI Agent Error:', error);
+    event.sender.send('ai-query-stream-error', {
+      requestId: resolvedRequestId,
+      message: '❌ 发生错误：处理失败，请稍后重试。'
+    });
     return JSON.stringify({ action: 'answer', content: '❌ 发生错误：处理失败，请稍后重试。' });
   }
 });

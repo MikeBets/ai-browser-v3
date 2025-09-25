@@ -12054,6 +12054,8 @@ function App() {
   const webviewRef = reactExports.useRef(null);
   const mediaRecorderRef = reactExports.useRef(null);
   const chatEndRef = reactExports.useRef(null);
+  const activeRequestIdRef = reactExports.useRef(null);
+  const assistantIndexRef = reactExports.useRef(null);
   const newsSites = [
     { name: "谷歌", url: "https://www.google.com" },
     { name: "百度", url: "https://www.baidu.com" },
@@ -12064,6 +12066,13 @@ function App() {
     { name: "新浪新闻", url: "https://news.sina.com.cn" },
     { name: "抖音", url: "https://www.douyin.com" }
   ];
+  const loadSite = reactExports.useCallback((siteUrl) => {
+    setUrl(siteUrl);
+    const webview = webviewRef.current;
+    if (webview) {
+      webview.src = siteUrl;
+    }
+  }, []);
   reactExports.useEffect(() => {
     const webview = webviewRef.current;
     if (!webview) return;
@@ -12092,14 +12101,86 @@ function App() {
       webview.removeEventListener("did-fail-load", handleFailLoad);
       webview.removeEventListener("new-window", handleNewWindow);
     };
-  }, []);
-  const loadSite = (siteUrl) => {
-    setUrl(siteUrl);
-    const webview = webviewRef.current;
-    if (webview) {
-      webview.src = siteUrl;
+  }, [loadSite]);
+  const appendAssistantContent = reactExports.useCallback((delta) => {
+    if (!delta) return;
+    if (assistantIndexRef.current === null) {
+      setChatHistory((prev) => {
+        const updated = [...prev, { type: "assistant", content: delta }];
+        assistantIndexRef.current = updated.length - 1;
+        return updated;
+      });
+      return;
     }
-  };
+    setChatHistory((prev) => {
+      const updated = [...prev];
+      const index = assistantIndexRef.current;
+      const message = updated[index];
+      if (!message || message.type !== "assistant") {
+        updated.push({ type: "assistant", content: delta });
+        assistantIndexRef.current = updated.length - 1;
+        return updated;
+      }
+      updated[index] = { ...message, content: `${message.content}${delta}` };
+      return updated;
+    });
+  }, []);
+  const handleStreamChunk = reactExports.useCallback(({ requestId, delta }) => {
+    if (requestId !== activeRequestIdRef.current) return;
+    appendAssistantContent(delta);
+  }, [appendAssistantContent]);
+  const handleStreamEnd = reactExports.useCallback(({ requestId, response }) => {
+    if (requestId !== activeRequestIdRef.current) return;
+    setLoading(false);
+    setQuery("");
+    if (assistantIndexRef.current !== null) {
+      setChatHistory((prev) => {
+        const updated = [...prev];
+        const index = assistantIndexRef.current;
+        const message = updated[index];
+        if (message && message.type === "assistant" && (!message.content || !message.content.trim())) {
+          updated[index] = { ...message, content: response.content || "暂无响应" };
+        }
+        return updated;
+      });
+    }
+    if (response.url && response.url !== (webviewRef.current?.src || "")) {
+      loadSite(response.url);
+    }
+    activeRequestIdRef.current = null;
+    assistantIndexRef.current = null;
+  }, [loadSite]);
+  const handleStreamError = reactExports.useCallback(({ requestId, message }) => {
+    if (requestId !== activeRequestIdRef.current) return;
+    setLoading(false);
+    setQuery("");
+    setChatHistory((prev) => {
+      if (assistantIndexRef.current === null) {
+        return [...prev, { type: "assistant", content: message }];
+      }
+      const updated = [...prev];
+      const index = assistantIndexRef.current;
+      const existing = updated[index];
+      if (!existing || existing.type !== "assistant") {
+        updated.push({ type: "assistant", content: message });
+      } else {
+        updated[index] = { ...existing, content: message };
+      }
+      return updated;
+    });
+    activeRequestIdRef.current = null;
+    assistantIndexRef.current = null;
+  }, []);
+  reactExports.useEffect(() => {
+    const offChunk = window.api.onAiStreamChunk(handleStreamChunk);
+    const offEnd = window.api.onAiStreamEnd(handleStreamEnd);
+    const offError = window.api.onAiStreamError(handleStreamError);
+    return () => {
+      offChunk();
+      offEnd();
+      offError();
+    };
+  }, [handleStreamChunk, handleStreamEnd, handleStreamError]);
   const getPageContent = async () => {
     const webview = webviewRef.current;
     if (!webview) return "";
@@ -12153,55 +12234,39 @@ function App() {
     }
   };
   const sendQuery = async () => {
-    if (!query.trim()) return;
-    const userMessage = { type: "user", content: query };
-    setChatHistory((prev) => [...prev, userMessage]);
+    if (loading) return;
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
+    const requestId = window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}`;
+    const userMessage = { type: "user", content: trimmedQuery };
+    let assistantIndex = -1;
+    setChatHistory((prev) => {
+      const updated = [...prev, userMessage, { type: "assistant", content: "" }];
+      assistantIndex = updated.length - 1;
+      return updated;
+    });
+    assistantIndexRef.current = assistantIndex;
+    activeRequestIdRef.current = requestId;
+    setQuery("");
     setLoading(true);
     try {
       const pageContent = await getPageContent();
       const currentUrl = webviewRef.current?.src || url;
-      const result = await window.api.sendQuery(query, pageContent, currentUrl);
-      let aiResponse;
-      try {
-        aiResponse = JSON.parse(result);
-      } catch {
-        aiResponse = { action: "answer", content: result };
-      }
-      let assistantResponse = "";
-      switch (aiResponse.action) {
-        case "navigate":
-          if (aiResponse.url) {
-            assistantResponse = `📍 正在导航到 ${aiResponse.url}...`;
-            loadSite(aiResponse.url);
-          }
-          break;
-        case "search":
-          if (aiResponse.query) {
-            const searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(aiResponse.query)}`;
-            assistantResponse = `🔍 正在搜索: ${aiResponse.query}...`;
-            loadSite(searchUrl);
-          }
-          break;
-        case "summarize":
-        case "extract":
-        case "answer":
-          assistantResponse = aiResponse.content || "暂无响应";
-          if (aiResponse.url && aiResponse.url !== currentUrl) {
-            loadSite(aiResponse.url);
-          }
-          break;
-        default:
-          assistantResponse = aiResponse.content || JSON.stringify(aiResponse);
-      }
-      if (assistantResponse) {
-        setChatHistory((prev) => [...prev, { type: "assistant", content: assistantResponse }]);
-      }
-      setQuery("");
+      await window.api.sendQuery(trimmedQuery, pageContent, currentUrl, requestId);
     } catch (error) {
-      setChatHistory((prev) => [...prev, { type: "assistant", content: "❌ 错误：命令处理失败" }]);
       console.error("查询错误:", error);
-    } finally {
+      setChatHistory((prev) => {
+        if (assistantIndexRef.current === null) {
+          return [...prev, { type: "assistant", content: "❌ 错误：命令处理失败" }];
+        }
+        const updated = [...prev];
+        const index = assistantIndexRef.current;
+        updated[index] = { type: "assistant", content: "❌ 错误：命令处理失败" };
+        return updated;
+      });
       setLoading(false);
+      activeRequestIdRef.current = null;
+      assistantIndexRef.current = null;
     }
   };
   const handleKeyPress = (e) => {
