@@ -33,5 +33,21 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('navigate-browser', url),
 
   getBrowserState: () =>
-    ipcRenderer.invoke('get-browser-state')
+    ipcRenderer.invoke('get-browser-state'),
+
+  // File system operations
+  selectDirectory: () =>
+    ipcRenderer.invoke('select-directory'),
+
+  getWorkingDirectory: () =>
+    ipcRenderer.invoke('get-working-directory'),
+
+  listDirectory: (relativePath?: string) =>
+    ipcRenderer.invoke('list-directory', relativePath),
+
+  readFile: (relativePath: string) =>
+    ipcRenderer.invoke('read-file', relativePath),
+
+  writeFile: (relativePath: string, content: string) =>
+    ipcRenderer.invoke('write-file', relativePath, content)
 });

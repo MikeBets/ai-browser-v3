@@ -32,6 +32,12 @@ declare global {
       onAiStreamError: (callback: (payload: { requestId: string; message: string }) => void) => () => void;
       navigateBrowser: (url: string) => Promise<any>;
       getBrowserState: () => Promise<any>;
+      // File system operations
+      selectDirectory: () => Promise<any>;
+      getWorkingDirectory: () => Promise<any>;
+      listDirectory: (relativePath?: string) => Promise<any>;
+      readFile: (relativePath: string) => Promise<any>;
+      writeFile: (relativePath: string, content: string) => Promise<any>;
     };
     SpeechRecognition: any;
     webkitSpeechRecognition: any;
@@ -45,8 +51,10 @@ function App() {
   const [query, setQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [workingDirectory, setWorkingDirectory] = useState<string | null>(null);
+  const [isSelectingFolder, setIsSelectingFolder] = useState<boolean>(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
-    { type: 'assistant', content: '💬 准备好帮助您浏览网页了！' }
+    { type: 'assistant', content: '💬 准备好帮助您浏览网页和管理系统文件了！' }
   ]);
 
   const webviewRef = useRef<WebviewTag | null>(null);
@@ -324,6 +332,35 @@ function App() {
     if (e.key === 'Enter') loadSite(url);
   };
 
+  const selectFolder = async (): Promise<void> => {
+    if (isSelectingFolder) return;
+
+    setIsSelectingFolder(true);
+    try {
+      const result = await window.api.selectDirectory();
+      if (result.success && result.path) {
+        setWorkingDirectory(result.path);
+        setChatHistory(prev => [...prev, {
+          type: 'assistant',
+          content: `📁 已选择工作目录：${result.path}\n\n现在您可以在此目录中进行文件操作了！`
+        }]);
+      } else {
+        setChatHistory(prev => [...prev, {
+          type: 'assistant',
+          content: '❌ 未选择目录'
+        }]);
+      }
+    } catch (error: any) {
+      console.error('选择目录错误:', error);
+      setChatHistory(prev => [...prev, {
+        type: 'assistant',
+        content: '❌ 选择目录失败'
+      }]);
+    } finally {
+      setIsSelectingFolder(false);
+    }
+  };
+
   return (
     <div className="container">
       <div className="browser">
@@ -387,7 +424,15 @@ function App() {
             onKeyDown={handleKeyPress}
             disabled={loading || isRecording}
           />
-          <button 
+          <button
+            onClick={selectFolder}
+            className={`folder-btn ${workingDirectory ? 'selected' : ''}`}
+            disabled={isSelectingFolder}
+            title={workingDirectory ? `工作目录: ${workingDirectory}` : '选择工作目录'}
+          >
+            {isSelectingFolder ? '⏳' : workingDirectory ? '📁 ✓' : '📁'}
+          </button>
+          <button
             onClick={isRecording ? stopRecording : startRecording}
             className={`record-btn ${isRecording ? 'recording' : ''}`}
             disabled={loading}

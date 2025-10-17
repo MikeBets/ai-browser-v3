@@ -169,6 +169,41 @@ body {
   cursor: not-allowed;
 }
 
+.folder-btn {
+  padding: 8px 12px !important;
+  background: #6f42c1 !important;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 16px;
+}
+
+.folder-btn:hover:not(:disabled) {
+  background: #5a32a3 !important;
+  transform: scale(1.05);
+}
+
+.folder-btn.selected {
+  background: #28a745 !important;
+}
+
+.folder-btn.selected:hover:not(:disabled) {
+  background: #1e7e34 !important;
+}
+
+.folder-btn:disabled {
+  background: #6c757d !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .chat-history {
   flex: 1;
   padding: 15px;

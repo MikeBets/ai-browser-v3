@@ -1,6 +1,8 @@
-import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
+import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent, dialog } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
+import { existsSync, statSync, readdirSync } from 'fs';
 import { streamText, tool, zodSchema, stepCountIs } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import dotenv from 'dotenv';
@@ -21,6 +23,9 @@ const openai = createOpenAI({
 });
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
+
+// Working directory for file operations
+let workingDirectory: string | null = null;
 
 // Expose Chrome DevTools Protocol for electron-mcp (port 9222)
 try {
@@ -92,8 +97,151 @@ ipcMain.handle('ai-query', async (
       }
     });
 
+    // File system tools
+    const getWorkingDirectory = tool({
+      description: '获取当前设置的工作目录。',
+      inputSchema: zodSchema(z.object({})),
+      execute: async () => {
+        console.log('Tool: getWorkingDirectory called');
+        if (!workingDirectory) {
+          throw new Error('No working directory set. Please ask the user to click the folder button (📁) to select a working directory first.');
+        }
+        return { workingDirectory };
+      }
+    });
+
+    const setWorkingDirectory = tool({
+      description: '设置工作目录路径。',
+      inputSchema: zodSchema(z.object({
+        path: z.string().describe('工作目录的完整路径')
+      })),
+      execute: async ({ path: dirPath }: { path: string }) => {
+        console.log('Tool: setWorkingDirectory called with path:', dirPath);
+
+        // Validate path exists and is a directory
+        if (!existsSync(dirPath)) {
+          throw new Error(`Directory does not exist: ${dirPath}`);
+        }
+
+        const stats = statSync(dirPath);
+        if (!stats.isDirectory()) {
+          throw new Error(`Path is not a directory: ${dirPath}`);
+        }
+
+        workingDirectory = path.resolve(dirPath);
+        console.log('Working directory set to:', workingDirectory);
+        return { workingDirectory, success: true };
+      }
+    });
+
+    const listDirectory = tool({
+      description: '列出工作目录中的文件和文件夹。',
+      inputSchema: zodSchema(z.object({
+        relativePath: z.string().optional().describe('相对于工作目录的路径，默认为根目录')
+      })),
+      execute: async ({ relativePath }: { relativePath?: string }) => {
+        console.log('Tool: listDirectory called with relativePath:', relativePath);
+        if (!workingDirectory) {
+          throw new Error('No working directory set. Please use setWorkingDirectory first.');
+        }
+
+        const targetPath = relativePath
+          ? path.join(workingDirectory, relativePath)
+          : workingDirectory;
+
+        if (!existsSync(targetPath)) {
+          throw new Error(`Path does not exist: ${targetPath}`);
+        }
+
+        const items = readdirSync(targetPath, { withFileTypes: true });
+        const result = items.map(item => ({
+          name: item.name,
+          type: item.isDirectory() ? 'directory' : item.isFile() ? 'file' : 'other',
+          path: workingDirectory ? path.relative(workingDirectory, path.join(targetPath, item.name)) : path.join(targetPath, item.name)
+        }));
+
+        console.log('List directory result:', result.length, 'items');
+        return { items: result, path: workingDirectory ? path.relative(workingDirectory, targetPath) || '.' : targetPath };
+      }
+    });
+
+    const readFile = tool({
+      description: '读取文件内容。',
+      inputSchema: zodSchema(z.object({
+        relativePath: z.string().describe('相对于工作目录的文件路径')
+      })),
+      execute: async ({ relativePath }: { relativePath: string }) => {
+        console.log('Tool: readFile called with relativePath:', relativePath);
+        if (!workingDirectory) {
+          throw new Error('No working directory set. Please use setWorkingDirectory first.');
+        }
+
+        const filePath = path.join(workingDirectory, relativePath);
+
+        if (!existsSync(filePath)) {
+          throw new Error(`File does not exist: ${filePath}`);
+        }
+
+        const stats = statSync(filePath);
+        if (!stats.isFile()) {
+          throw new Error(`Path is not a file: ${filePath}`);
+        }
+
+        // Check file size (limit to 1MB)
+        if (stats.size > 1024 * 1024) {
+          throw new Error(`File too large: ${stats.size} bytes (max 1MB)`);
+        }
+
+        const content = await fs.readFile(filePath, 'utf-8');
+        console.log('Read file result:', { path: relativePath, size: content.length });
+        return { content, path: relativePath, size: content.length };
+      }
+    });
+
+    const writeFile = tool({
+      description: '写入文件内容。',
+      inputSchema: zodSchema(z.object({
+        relativePath: z.string().describe('相对于工作目录的文件路径'),
+        content: z.string().describe('要写入的文件内容')
+      })),
+      execute: async ({ relativePath, content }: { relativePath: string; content: string }) => {
+        console.log('Tool: writeFile called with relativePath:', relativePath);
+        if (!workingDirectory) {
+          throw new Error('No working directory set. Please use setWorkingDirectory first.');
+        }
+
+        const filePath = path.join(workingDirectory, relativePath);
+
+        // Ensure parent directory exists
+        const dirPath = path.dirname(filePath);
+        await fs.mkdir(dirPath, { recursive: true });
+
+        await fs.writeFile(filePath, content, 'utf-8');
+        console.log('Write file result:', { path: relativePath, size: content.length });
+        return { success: true, path: relativePath, size: content.length };
+      }
+    });
+
+    const createDirectory = tool({
+      description: '创建目录。',
+      inputSchema: zodSchema(z.object({
+        relativePath: z.string().describe('相对于工作目录的目录路径')
+      })),
+      execute: async ({ relativePath }: { relativePath: string }) => {
+        console.log('Tool: createDirectory called with relativePath:', relativePath);
+        if (!workingDirectory) {
+          throw new Error('No working directory set. Please use setWorkingDirectory first.');
+        }
+
+        const dirPath = path.join(workingDirectory, relativePath);
+        await fs.mkdir(dirPath, { recursive: true });
+        console.log('Create directory result:', { path: relativePath });
+        return { success: true, path: relativePath };
+      }
+    });
+
     // System guidance for multi-step behavior
-    const systemPrompt: string = `你是一个"AI 浏览器"代理。你必须按以下步骤处理用户请求：
+    const systemPrompt: string = `你是一个"AI 浏览器与文件管理"代理。你可以浏览网页并管理文件系统。你必须按以下步骤处理用户请求：
 
 重要规则：
 - 当用户要求"打开X并总结"时，你必须执行两个步骤：
@@ -104,6 +252,16 @@ ipcMain.handle('ai-query', async (
 - 绝对不要只调用 navigate 就结束
 - 如果用户要求总结或分析页面，你必须先调用 readPage 获取内容
 - 只有在获取页面内容后，才能生成有意义的总结
+
+文件系统操作：
+- 在进行任何文件操作前，用户必须先点击界面上的文件夹按钮（📁）选择工作目录
+- 使用 getWorkingDirectory 检查当前工作目录是否已设置
+- 使用 listDirectory 列出目录内容
+- 使用 readFile 读取文件内容
+- 使用 writeFile 写入文件内容
+- 使用 createDirectory 创建目录
+- 文件路径都是相对于工作目录的
+- 如果没有设置工作目录，请明确提醒用户："请先点击界面上的文件夹按钮（📁）选择工作目录"
 
 常见北美网站映射（当用户只说站点名时请用对应网址）：
 - Hacker News/HN -> https://news.ycombinator.com
@@ -132,10 +290,18 @@ ipcMain.handle('ai-query', async (
       model: openai('gpt-5-mini'),
       system: systemPrompt,
       prompt: enhancedPrompt,
-      tools: { navigate, readPage },
+      tools: {
+        navigate,
+        readPage,
+        getWorkingDirectory,
+        listDirectory,
+        readFile,
+        writeFile,
+        createDirectory
+      },
       toolChoice: 'auto',
-      maxOutputTokens: 800,
-      stopWhen: stepCountIs(10)
+      // maxOutputTokens: 800,
+      stopWhen: stepCountIs(15)
     });
 
     let finalText = '';
@@ -205,7 +371,7 @@ ipcMain.handle('get-browser-state', async (event: IpcMainInvokeEvent) => {
     const content = await getPageContent();
     const title = await getPageTitle();
     const url = await getPageURL();
-    
+
     return {
       url,
       title,
@@ -213,6 +379,109 @@ ipcMain.handle('get-browser-state', async (event: IpcMainInvokeEvent) => {
     };
   } catch (error: any) {
     return { url: '', title: '', content: '' };
+  }
+});
+
+// Directory selection and file operations
+ipcMain.handle('select-directory', async (event: IpcMainInvokeEvent) => {
+  try {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+    });
+
+    if (!result.canceled && result.filePaths.length > 0) {
+      workingDirectory = result.filePaths[0];
+      console.log('Directory selected:', workingDirectory);
+      return { success: true, path: workingDirectory };
+    }
+
+    return { success: false, error: 'No directory selected' };
+  } catch (error: any) {
+    console.error('Directory selection error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('get-working-directory', async (event: IpcMainInvokeEvent) => {
+  return { workingDirectory };
+});
+
+ipcMain.handle('list-directory', async (event: IpcMainInvokeEvent, relativePath?: string) => {
+  try {
+    if (!workingDirectory) {
+      return { success: false, error: 'No working directory set' };
+    }
+
+    const wd = workingDirectory; // Type assertion after null check
+    const targetPath = relativePath
+      ? path.join(wd, relativePath)
+      : wd;
+
+    if (!existsSync(targetPath)) {
+      return { success: false, error: `Path does not exist: ${targetPath}` };
+    }
+
+    const items = readdirSync(targetPath, { withFileTypes: true });
+    const result = items.map(item => ({
+      name: item.name,
+      type: item.isDirectory() ? 'directory' : item.isFile() ? 'file' : 'other',
+      path: path.relative(wd, path.join(targetPath, item.name))
+    }));
+
+    return { success: true, items, path: path.relative(wd, targetPath) || '.' };
+  } catch (error: any) {
+    console.error('List directory error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('read-file', async (event: IpcMainInvokeEvent, relativePath: string) => {
+  try {
+    if (!workingDirectory) {
+      return { success: false, error: 'No working directory set' };
+    }
+
+    const filePath = path.join(workingDirectory, relativePath);
+
+    if (!existsSync(filePath)) {
+      return { success: false, error: `File does not exist: ${filePath}` };
+    }
+
+    const stats = statSync(filePath);
+    if (!stats.isFile()) {
+      return { success: false, error: `Path is not a file: ${filePath}` };
+    }
+
+    // Check file size (limit to 1MB)
+    if (stats.size > 1024 * 1024) {
+      return { success: false, error: `File too large: ${stats.size} bytes (max 1MB)` };
+    }
+
+    const content = await fs.readFile(filePath, 'utf-8');
+    return { success: true, content, path: relativePath, size: content.length };
+  } catch (error: any) {
+    console.error('Read file error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('write-file', async (event: IpcMainInvokeEvent, relativePath: string, content: string) => {
+  try {
+    if (!workingDirectory) {
+      return { success: false, error: 'No working directory set' };
+    }
+
+    const filePath = path.join(workingDirectory, relativePath);
+
+    // Ensure parent directory exists
+    const dirPath = path.dirname(filePath);
+    await fs.mkdir(dirPath, { recursive: true });
+
+    await fs.writeFile(filePath, content, 'utf-8');
+    return { success: true, path: relativePath, size: content.length };
+  } catch (error: any) {
+    console.error('Write file error:', error);
+    return { success: false, error: error.message };
   }
 });
 
