@@ -1,8 +1,8 @@
 import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { streamText, tool, jsonSchema, stepCountIs } from 'ai';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { streamText, tool, zodSchema, stepCountIs } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 import { randomUUID } from 'crypto';
@@ -10,14 +10,14 @@ import { navigateTo, getPageContent, getPageTitle, getPageURL, takeScreenshot } 
 
 dotenv.config();
 
-const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+const openAIApiKey = process.env.OPENAI_API_KEY;
 
-if (!openRouterApiKey) {
-  throw new Error('Missing OPENROUTER_API_KEY environment variable. Please set it in your .env file.');
+if (!openAIApiKey) {
+  throw new Error('Missing OPENAI_API_KEY environment variable. Please set it in your .env file.');
 }
 
-const openrouter = createOpenRouter({
-  apiKey: openRouterApiKey
+const openai = createOpenAI({
+  apiKey: openAIApiKey
 });
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
@@ -63,14 +63,9 @@ ipcMain.handle('ai-query', async (
 
     const navigate = tool({
       description: '打开或跳转到指定网页（仅支持 http/https）。',
-      inputSchema: jsonSchema({
-        type: 'object',
-        properties: {
-          url: { type: 'string', description: '要打开的完整 URL' }
-        },
-        required: ['url'],
-        additionalProperties: false
-      }),
+      inputSchema: zodSchema(z.object({
+        url: z.string().describe('要打开的完整 URL')
+      })),
       execute: async ({ url }: { url: string }) => {
         console.log('Tool: navigate called with URL:', url);
         // More robust URL cleaning
@@ -86,11 +81,7 @@ ipcMain.handle('ai-query', async (
 
     const readPage = tool({
       description: '读取当前页面的标题与正文（自动截断到安全长度）。',
-      inputSchema: jsonSchema({
-        type: 'object',
-        properties: {},
-        additionalProperties: false
-      }),
+      inputSchema: zodSchema(z.object({})),
       execute: async () => {
         console.log('Tool: readPage called');
         const url = await getPageURL();
@@ -138,13 +129,12 @@ ipcMain.handle('ai-query', async (
     event.sender.send('ai-query-stream-start', { requestId: resolvedRequestId });
 
     const result = streamText({
-      model: openrouter.chat('x-ai/grok-4-fast:free'),
+      model: openai('gpt-5-mini'),
       system: systemPrompt,
       prompt: enhancedPrompt,
       tools: { navigate, readPage },
       toolChoice: 'auto',
-      maxTokens: 800,
-      maxSteps: 10,
+      maxOutputTokens: 800,
       stopWhen: stepCountIs(10)
     });
 
