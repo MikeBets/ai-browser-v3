@@ -24,6 +24,7 @@
 - 🤖 **AI 助手**：透過 OpenRouter 預設使用 x-ai/grok-4-fast 模型分析網頁內容
 - 💬 **聊天紀錄**：完整對話歷史與美觀介面
 - 🎯 **智慧導航**：使用自然語言控制瀏覽
+- 🔑 **許可證激活**：支援 Creem.io 許可證系統
 
 ### 技術堆疊
 
@@ -49,9 +50,30 @@ npm run build
 ### 環境設定
 
 建立 `.env` 檔案並加入您的 API 金鑰：
+```bash
+# Required: AI API Key
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Optional: Creem.io License API Key
+# Get this from: https://creem.io/dashboard/developers
+CREEM_API_KEY=your_creem_api_key_here
 ```
-OPENROUTER_API_KEY=your_api_key_here
-```
+
+#### 許可證激活設定
+
+應用程式支援 Creem.io 許可證系統：
+
+1. **取得 API 金鑰**：
+   - 前往 [Creem.io 儀表板](https://creem.io/dashboard/developers)
+   - 在 "Developers" 區塊中找到您的 API 金鑰
+
+2. **許可證格式**：
+   - 許可證金鑰格式為：`ABCDEF-123456-GHIJKL`
+   - 在應用程式中點擊 🔑 按鈕開啟許可證對話框
+
+3. **開發模式**：
+   - 如果未設定 `CREEM_API_KEY`，應用程式會以演示模式運行
+   - 任何符合格式的許可證金鑰都會被接受（僅供開發測試）
 
 ## 課程背景
 

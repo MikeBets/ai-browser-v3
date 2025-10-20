@@ -8,11 +8,14 @@ import { createOpenAI } from '@ai-sdk/openai';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 import { randomUUID } from 'crypto';
+import Store from 'electron-store';
+import axios from 'axios';
 import { navigateTo, getPageContent, getPageTitle, getPageURL, takeScreenshot } from './browser-controller';
 
 dotenv.config();
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
+const store = new Store();
 
 if (!openAIApiKey) {
   throw new Error('Missing OPENAI_API_KEY environment variable. Please set it in your .env file.');
@@ -482,6 +485,115 @@ ipcMain.handle('write-file', async (event: IpcMainInvokeEvent, relativePath: str
   } catch (error: any) {
     console.error('Write file error:', error);
     return { success: false, error: error.message };
+  }
+});
+
+// License activation
+ipcMain.handle('activate-license', async (event: IpcMainInvokeEvent, { licenseKey }: { licenseKey: string }) => {
+  try {
+    // Get device ID for license binding
+    const os = require('os');
+    const deviceId = `${process.platform}-${os.release()}-${os.hostname()}`;
+
+    // Check if already activated
+    const existingLicense = store.get('license') as any;
+    if (existingLicense && existingLicense.activated) {
+      return { success: false, error: '许可证已激活' };
+    }
+
+    // Use Creem.io API for license validation
+    const creemApiKey = process.env.CREEM_API_KEY;
+
+   console.log('creemApiKey', creemApiKey);
+   console.log('licenseKey', licenseKey);
+   console.log('deviceId', deviceId);
+
+    try {
+      // Activate the license using Creem.io API in test mode
+      // The activation endpoint handles both validation and activation
+      const activateResponse = await axios.post('https://test-api.creem.io/v1/licenses/activate', {
+        key: licenseKey,
+        instance_name: deviceId,
+        // mode: 'test'
+      }, {
+        headers: {
+          'x-api-key': creemApiKey,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Check if activation was successful
+      // The API returns a LicenseEntity object with status field
+      if (activateResponse.data && activateResponse.data.status) {
+        // Store activation locally
+        store.set('license', {
+          key: licenseKey,
+          activated: true,
+          activatedAt: new Date().toISOString(),
+          deviceId,
+          licenseData: activateResponse.data
+        });
+
+        return { success: true };
+      } else {
+        return { success: false, error: '激活失败：响应格式无效' };
+      }
+    } catch (apiError: any) {
+      console.error('Creem.io API error:', apiError.response?.data || apiError.message);
+
+      // For API errors, provide detailed feedback based on status code
+      const status = apiError.response?.status;
+      const errorData = apiError.response?.data;
+
+      if (status === 403) {
+        return {
+          success: false,
+          error: 'API 密钥无效或权限不足，请检查 CREEM_API_KEY 配置'
+        };
+      } else if (status === 401) {
+        return {
+          success: false,
+          error: 'API 密钥未授权，请检查 CREEM_API_KEY 配置'
+        };
+      } else if (status === 400) {
+        // 400 errors often contain specific details about what's wrong
+        const detailedError = errorData?.error || errorData?.message || '许可证格式错误或参数无效';
+        return {
+          success: false,
+          error: `参数错误: ${detailedError}`
+        };
+      } else if (status === 404) {
+        return {
+          success: false,
+          error: '许可证不存在或已被删除'
+        };
+      } else if (status === 409) {
+        return {
+          success: false,
+          error: '许可证已达到激活上限或实例已存在'
+        };
+      }
+
+      // Fallback to demo mode for network/other errors
+      if (licenseKey.match(/^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$/)) {
+        console.log('API failed, falling back to demo mode');
+        store.set('license', {
+          key: licenseKey,
+          activated: true,
+          activatedAt: new Date().toISOString(),
+          deviceId
+        });
+        return { success: true };
+      }
+
+      return {
+        success: false,
+        error: errorData?.error || errorData?.message || '许可证激活失败，请检查网络连接'
+      };
+    }
+  } catch (error: any) {
+    console.error('License activation error:', error);
+    return { success: false, error: '激活过程中发生错误' };
   }
 });
 

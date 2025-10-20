@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { WebviewTag } from 'electron';
 import { Streamdown } from 'streamdown';
+import LicenseDialog from './LicenseDialog';
 import './style.css';
 
 // --- Type Definitions ---
@@ -38,6 +39,8 @@ declare global {
       listDirectory: (relativePath?: string) => Promise<any>;
       readFile: (relativePath: string) => Promise<any>;
       writeFile: (relativePath: string, content: string) => Promise<any>;
+      // License activation
+      activateLicense: (licenseKey: string) => Promise<{ success: boolean; error?: string }>;
     };
     SpeechRecognition: any;
     webkitSpeechRecognition: any;
@@ -53,6 +56,7 @@ function App() {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [workingDirectory, setWorkingDirectory] = useState<string | null>(null);
   const [isSelectingFolder, setIsSelectingFolder] = useState<boolean>(false);
+  const [isLicenseDialogOpen, setIsLicenseDialogOpen] = useState<boolean>(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
     { type: 'assistant', content: '💬 准备好帮助您浏览网页和管理系统文件了！' }
   ]);
@@ -361,6 +365,15 @@ function App() {
     }
   };
 
+  const handleLicenseActivation = async (licenseKey: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      return await window.api.activateLicense(licenseKey);
+    } catch (error: any) {
+      console.error('License activation error:', error);
+      return { success: false, error: error.message || '激活失败，请稍后重试' };
+    }
+  };
+
   return (
     <div className="container">
       <div className="browser">
@@ -433,6 +446,13 @@ function App() {
             {isSelectingFolder ? '⏳' : workingDirectory ? '📁 ✓' : '📁'}
           </button>
           <button
+            onClick={() => setIsLicenseDialogOpen(true)}
+            className="license-btn"
+            title="激活许可证"
+          >
+            🔑
+          </button>
+          <button
             onClick={isRecording ? stopRecording : startRecording}
             className={`record-btn ${isRecording ? 'recording' : ''}`}
             disabled={loading}
@@ -444,6 +464,12 @@ function App() {
           </button>
         </div>
       </div>
+
+      <LicenseDialog
+        isOpen={isLicenseDialogOpen}
+        onClose={() => setIsLicenseDialogOpen(false)}
+        onActivate={handleLicenseActivation}
+      />
     </div>
   );
 }

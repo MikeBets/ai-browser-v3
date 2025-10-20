@@ -49,5 +49,9 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('read-file', relativePath),
 
   writeFile: (relativePath: string, content: string) =>
-    ipcRenderer.invoke('write-file', relativePath, content)
+    ipcRenderer.invoke('write-file', relativePath, content),
+
+  // License activation
+  activateLicense: (licenseKey: string) =>
+    ipcRenderer.invoke('activate-license', { licenseKey })
 });
